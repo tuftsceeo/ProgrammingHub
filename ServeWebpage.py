@@ -8,6 +8,13 @@ import getpass, sys, telnetlib, socket, os, webbrowser, ssl
 
 # Initialize global variables
 page = 'landing'
+terminal = ''
+pageContent = '''
+<html>
+<body style="width:960px; margin: 20px auto;">
+<h4>There is a problem Loading this page </h4>
+</body>
+</html>'''
 
 # Get IP Address
 ip_address = '';
@@ -20,11 +27,22 @@ s.close()
 host_port = 8000
 
 def setPage(post_data):
+    global page
     if 'simplePage' in post_data:
         page = 'simplePage'
-    else:
-        page = 'landing'
+    elif 'page2' in post_data:
+        page = 'page2'
     return page
+
+def setPageContent(page):
+    global pageContent
+    if page == 'landing':
+        pageContent = (open('Landing.html').read())
+    elif page == 'simplePage':
+        pageContent = (open('Base.html').read()%(terminal,page))+(open('Simple.html').read())
+    elif page == 'page2':
+        pageContent = (open('Base.html').read()%(terminal,page))+(open('Page2.html').read())
+    return pageContent
 
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
@@ -41,12 +59,9 @@ class MyServer(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        # print('page = ' + page)
+        #print('page = ' + page)
         self.do_HEAD()
-
-        if page == 'landing':
-            pageContent = (open('Landing.html').read())
-
+        setPageContent(page)
         self.wfile.write(pageContent.encode("utf-8"))
 
     def do_POST(self):
@@ -57,7 +72,6 @@ class MyServer(BaseHTTPRequestHandler):
         print(post_data) # Uncomment for debugging
         setPage(post_data) # Change page
         self._redirect('/')  # Redirect back to the root url
-        return page
 
 # Create Webserver
 if __name__ == '__main__':

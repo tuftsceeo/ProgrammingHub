@@ -6,6 +6,21 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import unquote
 import getpass, sys, telnetlib, socket, os, webbrowser, ssl
 
+# Set Content for the Forms
+pyCode = {'Beep':'''import ev3dev.ev3 as ev3\nev3.Sound.beep()''',
+          'Lights':'''import ev3dev.ev3 as ev3\nev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.YELLOW)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.YELLOW)'''}
+
+# HTML for Forms
+Form_html = ''' 
+<form action="/" method="POST">
+   <textarea rows="4" cols="50" spellcheck="false" name = "{}"
+      style = "border:none;resize:none;background-color:powderblue"
+   >{}</textarea>
+   <input type="submit" name = "REPL" value = ">>>">
+</form>
+<br> 
+'''
+
 # Initialize global variables
 page = 'landing'
 terminal = ''
@@ -41,8 +56,16 @@ def setPageContent(page):
     elif page == 'simplePage':
         pageContent = (open('Base.html').read()%(terminal,page))+(open('Simple.html').read())
     elif page == 'page2':
-        pageContent = (open('Base.html').read()%(terminal,page))+(open('Page2.html').read())
+        pageContent = (open('Base.html').read()%(terminal,page))
+        for line in pyCode:
+                pageContent = pageContent + Form_html.format(line,pyCode[line])
     return pageContent
+
+def readCommands(post_data):
+    if 'REPL' in post_data:
+        LinesOfCode = unquote(post_data.split("&")[0].replace("+", " ")).split('\n')
+        print(LinesOfCode)
+        return LinesOfCode
 
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
@@ -71,6 +94,7 @@ class MyServer(BaseHTTPRequestHandler):
         post_data = post_data.split("=")[1]  # Only keep the value
         print(post_data) # Uncomment for debugging
         setPage(post_data) # Change page
+        readCommands(post_data) # Read Commands from Forms
         self._redirect('/')  # Redirect back to the root url
 
 # Create Webserver

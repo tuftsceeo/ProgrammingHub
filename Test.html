@@ -2,7 +2,7 @@
 <body style="width:960px; margin: 20px auto;">
 <aside style="float:right;width:500px;">
  <br><br><br><form id="command" action="/EnterCommand" method="POST" onkeydown="PressEnter(event,'command')">
- <textarea rows="21" cols="80" name = "TerminalWindow" spellcheck="false" placeholder="Terminal Window Will Activate When Device is Connected">%s</textarea><br>
+ <textarea rows="21" cols="80" name = "TerminalWindow" placeholder="Terminal Window Will Activate When Device is Connected">%s</textarea><br>
  <input type="submit" id="SendCommand" name="SendCommand" value="Send Command" hidden="hidden">
  <input type="text" name="SendCommand" value="" hidden="hidden">
  </form>
@@ -15,8 +15,8 @@
 <form id = "pageForm" action="/Page" method="POST" onchange="submit('pageForm')">
   <span>Select a page: </span>
   <select id="pageSelect" name = "page">
-    <option value="simplePage">Welcome Page</option>
-    <option value="page2">EV3 Example Code</option>
+    <option value="simplePage">Simple Page</option>
+    <option value="page2">Page 2</option>
   </select>
   <input id="submitpage" type="submit" hidden="hidden">
  </form>
@@ -41,3 +41,19 @@ document.getElementById("pageSelect").selectedIndex = index;
     }
   }
 </script>
+<form action="/" method="POST">
+   <textarea rows="2" cols="40" name = "{}"
+      style = "border:none;resize:none;background-color:powderblue"
+   >{}</textarea>
+   <input type="submit" name = "REPL" value = ">>>">
+</form>
+<br> 
+<form action="/" method="POST">
+   <textarea rows="2" cols="40" name = "{}"
+      style = "border:none;resize:none;background-color:powderblue"
+   >{}</textarea>
+   <input type="submit" name = "REPL" value = ">>>">
+</form>
+<br> 
+</body>
+</html>

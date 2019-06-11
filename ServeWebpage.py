@@ -4,7 +4,7 @@
 from time import sleep
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import unquote
-import getpass, sys, telnetlib, socket, os, webbrowser, ssl
+import getpass, sys, socket, os, webbrowser
 
 # Set Content for the Forms
 pyCode = {'Beep':'''import ev3dev.ev3 as ev3\nev3.Sound.beep()''',
@@ -29,7 +29,7 @@ pageContent = '''
 <body style="width:960px; margin: 20px auto;">
 <h4>There is a problem Loading this page </h4>
 </body>
-</html>'''
+</html>''' # Something very bad has happened if you see this
 
 # Get IP Address
 ip_address = '';
@@ -43,7 +43,7 @@ host_port = 8000
 
 def setPage(post_data):
     global page
-    if 'simplePage' in post_data:
+    if 'simplePage' in post_data or 'Skip' in post_data:
         page = 'simplePage'
     elif 'page2' in post_data:
         page = 'page2'

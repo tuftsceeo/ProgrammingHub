@@ -52,11 +52,11 @@ def setPage(post_data):
 def setPageContent(page):
     global pageContent
     if page == 'landing':
-        pageContent = (open('Landing.html').read())
+        pageContent = (open(os.getcwd()+'/includes/Landing.html').read())
     elif page == 'simplePage':
-        pageContent = (open('Base.html').read()%(terminal,page))+(open('Simple.html').read())
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page))+(open(os.getcwd()+'/includes/Simple.html').read())
     elif page == 'page2':
-        pageContent = (open('Base.html').read()%(terminal,page))
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page))
         for line in pyCode:
                 pageContent = pageContent + Form_html.format(line,pyCode[line])
     return pageContent

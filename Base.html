@@ -11,12 +11,7 @@
  </form>
 </aside>
 <h1>Programming Hub</h1>
-<h4 id = "page">%s</h4>
-<script>
-var x = document.getElementById('page').innerHTML;
-// alert(x); // Check that the innerHTML is correct
-document.getElementById('pageSelect').value = x; // Why isn't this working
-</script>
+<h4 hidden id = "page">%s</h4>
 <form id = "pageForm" action="/Page" method="POST" onchange="submit('pageForm')">
   <span>Select a page: </span>
   <select id="pageSelect" name = "page">
@@ -25,34 +20,23 @@ document.getElementById('pageSelect').value = x; // Why isn't this working
   </select>
   <input id="submitpage" type="submit" hidden="hidden">
  </form>
-<script>
-function PressEnter(e,FormID) {
-  // If Enter is Pressed
-  if ( (window.event ? event.keyCode : e.which) == 13) {
-    // Submit the Form
-    document.getElementById(FormID).submit();
-  }
-}
-function setValue() {
-    var x = document.getElementById('page').innerHTML;
-    var index = 1;
-    if (x == simplePage) {
-      index=1;
-  } else if (x == page2) {
-      index=1;
+<script> // Change Selected Item in Dropdown Menu Based on Current Page
+  var x = document.getElementById('page').innerHTML;
+  var index = "0";
+  if (x == 'simplePage') {
+    index="0";
+  } else if (x == 'page2') {
+    index="1";
   } else {
-      index=2;
+    index="0";
+}
+document.getElementById("pageSelect").selectedIndex = index;
+</script>
+<script src="BaseScripts.js"></script>
+<script>
+  function PressEnter(e,FormID) { // Submit form if Enter Key is pressed
+    if ( (window.event ? event.keyCode : e.which) == 13) {
+      document.getElementById(FormID).submit();
+    }
   }
-    alert(index);
-    // This line isn't working
-    document.getElementById("pageSelect").selectedIndex = index;
-}
-function submit(FormID) {
-    document.getElementById(FormID).submit();
-}
-// getValue used to test the ability to get the value of the selected page
- function getValue() {
-   var x = document.getElementById("pageSelect").selectedIndex;
-   alert(document.getElementsByTagName("option")[x].value);
- }
 </script>

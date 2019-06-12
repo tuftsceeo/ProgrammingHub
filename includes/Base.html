@@ -13,19 +13,24 @@
 </aside>
 <h1>Programming Hub</h1>
 <h4 hidden id = "page">%s</h4>
-<h4 hidden id = "connected">%s</h4>
-<span id="dot"></span> <!-- Blink red  -->
-<span id="connectionStatus"></span> <br> <br>
+<h4 hidden id = "connected">%s</h4> 
+<form action="/" method="POST">
+     <span id="dot"></span> <!-- Blink red  -->
+     <span id="connectionStatus"></span>
+     <input id="return" class="buttonRed" style="display:none;" type="submit" name="Return" value="Return to Connection Page">
+ </form>
 <script>
   var connected = document.getElementById('connected').innerHTML;
     if (connected == 'True') {
     document.getElementById("dot").className = "dotGreen";
     document.getElementById("connectionStatus").className = "green";
     document.getElementById("connectionStatus").innerHTML = 'Device Connected';
+    document.getElementById("return").style.display = "none";
   } else {
     document.getElementById("dot").className = "dotRed";
     document.getElementById("connectionStatus").className = "red";
     document.getElementById("connectionStatus").innerHTML = 'No Device Connected';
+    document.getElementById("return").style.display = "initial";
   }
 </script>
 <form id = "pageForm" action="/Page" method="POST" onchange="submit('pageForm')">

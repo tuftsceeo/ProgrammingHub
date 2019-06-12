@@ -22,7 +22,7 @@ Form_html = '''
 '''
 
 # Initialize global variables
-connected = 'False'
+connected = True
 page = 'landing'
 terminal = ''
 pageContent = '''
@@ -48,6 +48,8 @@ def setPage(post_data):
         page = 'simplePage'
     elif 'page2' in post_data:
         page = 'page2'
+    elif 'Return' in post_data:
+        page = 'landing'
     return page
 
 def setPageContent(page):
@@ -55,9 +57,9 @@ def setPageContent(page):
     if page == 'landing':
         pageContent = (open(os.getcwd()+'/includes/Landing.html').read())
     elif page == 'simplePage':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,connected))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected)))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())
     elif page == 'page2':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,connected))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected)))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
         for line in pyCode:
                 pageContent = pageContent + Form_html.format(line,pyCode[line])
     return pageContent

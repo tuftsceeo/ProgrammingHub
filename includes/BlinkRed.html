@@ -1,13 +1,28 @@
 <!-- Needs to be opened by ServeWebpage script because of percent signs-->
 <head>
 <style type="text/css">
-p.blinking{
+.red{
+  color: red;
+}
+.blinking{
   animation:blinkingText 2s infinite;
+}
+.dot {
+  animation:blinkingDot 2s infinite;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
 }
 @keyframes blinkingText{
   0%{   color: red;  }
   50%{  color: transparent; }
   100%{ color: red;  }
+}
+@keyframes blinkingDot{
+  0%{   background-color: red;  }
+  50%{  background-color: transparent; }
+  100%{ background-color: red;  }
 }
 </style>
 </head>

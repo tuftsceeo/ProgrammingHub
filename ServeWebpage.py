@@ -22,7 +22,7 @@ Form_html = '''
 '''
 
 # Initialize global variables
-connected = True
+connected = False
 page = 'landing'
 terminal = ''
 pageContent = '''

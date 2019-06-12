@@ -1,8 +1,15 @@
 <html>
 <body style="width:960px; margin: 20px auto;">
 <h1>Programming Hub</h1>
-<form id="EnterIP" action="/IP" method="POST" onkeydown="PressEnter(event,'EnterIP')">
- <input type="text" name="submit" placeholder="EV3 IP Address" id="ev3ip" size="30">
+<!-- <form id="EnterDevice" action="/" method="POST" onchange="submit('EnterDevice')">
+  <span>Type of Device: </span>
+  <select id="deviceSelect" name = "device">
+    <option value="EV3">EV3</option>
+    <option value="Other">More Devices Coming Soon</option>
+  </select>
+</form> -->
+<form id="EnterIP" action="/" method="POST" onkeydown="PressEnter(event,EnterIP)">
+ <input type="text" name="ipAddress" placeholder="IP Address" size="35">
  <input type="submit" name="Connect" value="Connect">
 </form>
 <br>

@@ -1,0 +1,8 @@
+p.blinking{
+  animation:blinkingText 2s infinite;
+}
+@keyframes blinkingText{
+  0%{   color: red;  }
+  50%{  color: transparent; }
+  100%{ color: red;  }
+}

@@ -54,9 +54,9 @@ def setPageContent(page):
     if page == 'landing':
         pageContent = (open(os.getcwd()+'/includes/Landing.html').read())
     elif page == 'simplePage':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page))+(open(os.getcwd()+'/includes/Simple.html').read())
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page))+(open(os.getcwd()+'/includes/BlinkRed.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())
     elif page == 'page2':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page))
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page))+(open(os.getcwd()+'/includes/BlinkRed.html')).read() 
         for line in pyCode:
                 pageContent = pageContent + Form_html.format(line,pyCode[line])
     return pageContent

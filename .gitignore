@@ -175,3 +175,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+tests/LV18_SSHPython/_subs/VIs/CleanReplyEV3.vi
+tests/LV18_SSHPython/_subs/VIs/CleanText.vi
+tests/LV18_SSHPython/_subs/VIs/PingBrick.vi
+tests/LV18_SSHPython/_subs/VIs/SSHBrick.vi
+tests/LV18_SSHPython/_subs/VIs/Typing.vi
+tests/LV18_SSHPython/Channel — Paramiko documentation.webloc
+tests/LV18_SSHPython/LV18_SSHPython.aliases
+tests/LV18_SSHPython/LV18_SSHPython.lvlps
+tests/LV18_SSHPython/sshTestCode.vi

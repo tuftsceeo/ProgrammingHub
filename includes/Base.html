@@ -1,14 +1,18 @@
 <html>
 <body style="width:960px; margin: 20px auto;">
 <aside style="float:right;width:500px;">
- <br><br><br><form id="command" action="/EnterCommand" method="POST" onkeydown="PressEnter(event,'command')">
- <textarea rows="21" cols="80" name = "TerminalWindow" spellcheck="false" style = "resize:none" 
- placeholder="Terminal Window Will Activate When Device is Connected">%s</textarea><br>
+ <br><br><br>
+ <textarea rows="30" cols="80" name = "TerminalWindow" spellcheck="false" style = "resize:none" 
+ placeholder="Terminal Window Will Activate When Device is Connected" readonly>%s</textarea><br>
+ <form id="command" action="/EnterCommand" method="POST" onkeydown="PressEnter(event,'command')">
+<input type="text" name="SendCommand" value="" spellcheck="false" placeholder="Enter Command Here" size="80"
+autocomplete="off">
  <input type="submit" id="SendCommand" name="SendCommand" value="Send Command" hidden="hidden">
  <input type="text" name="SendCommand" value="" hidden="hidden">
  </form>
 <form action="/" method="POST">
      <input type="submit" name="Clear" value="Clear Terminal">
+     <input type="submit" name="Refresh" value="Refresh Terminal">
  </form>
 </aside>
 <h1>Programming Hub</h1>

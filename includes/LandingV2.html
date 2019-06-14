@@ -1,0 +1,28 @@
+<html>
+<body style="width:960px; margin: 20px auto;">
+<h1>Programming Hub</h1>
+<aside style="float:right;width:720px;">
+<img src="images\ev3dev&dongle.png" alt="EV3" width="200" height="234">
+</aside>
+<form id="EnterIP" action="/" method="POST" onkeydown="PressEnter(event,EnterIP)">
+  <span>Device</span><br>
+  <select id="deviceSelect" name = "device">
+  	<option value="" disabled selected>Select Device Type</option>
+    <option value="EV3">EV3</option>
+    <option value="Other" disabled>More Devices Coming Soon</option>
+  </select><br><br>
+ <span>Username</span><br>
+ <input type="text" name="username" placeholder="Username" value="Robot" size="25" autocomplete="off"><br><br>
+ <span>Password</span><br>
+ <input type="text" name="password" placeholder="Password" value="Maker" size="25" autocomplete="off"><br><br>
+ <span>IP Address</span><br>
+ <input type="text" name="ipAddress" placeholder="IP Address" size="25" autocomplete="off"><br><br>
+ <input type="submit" name="Connect" value="Connect">
+</form>
+<br>
+<form action="/" method="POST">
+     <input type="submit" name="bypass" value="Skip (Go to Welcome Page)">
+</form>
+<script src="PressEnter.js"></script>
+</body>
+</html>

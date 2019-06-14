@@ -38,6 +38,7 @@ pageContent = '''
 
 ssh = None
 channel = None
+reply=''
 
 # Get IP Address
 ip_address = '';
@@ -137,20 +138,32 @@ def refreshTerminal(CurrentReply):
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
 
-    def do_HEAD(self):
+    def do_HEAD(self,pageContent):
         self.send_response(200)
-        self.send_header('Content-type', 'text/html')
+        # if '.png' in pageContent:
+        #     MIME = 'image/png'
+        # if '.js' in pageContent:
+        #     MIME = 'application/x-javascript'
+        # else:
+        #     MIME = 'text/html'
+        MIME = 'text/html'
+        self.send_header('Content-type', MIME)
         self.end_headers()
 
     def _redirect(self, path):
         self.send_response(303)
-        self.send_header('Content-type', 'text/html')
+        # if '.png' in pageContent:
+        #     MIME = 'image/png'
+        # else:
+        #     MIME = 'text/html'
+        MIME = 'text/html'
+        self.send_header('Content-type', MIME)
         self.send_header('Location', path)
         self.end_headers()
 
     def do_GET(self):
         #print('page = ' + page)
-        self.do_HEAD()
+        self.do_HEAD(pageContent)
         setPageContent(page)
         self.wfile.write(pageContent.encode("utf-8"))
 

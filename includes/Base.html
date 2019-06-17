@@ -1,12 +1,12 @@
 <html>
 <body style="width:960px; margin: 20px auto;">
-<aside style="float:right;width:500px;">
+<aside style="float:right;width:525px;">
  <br><br><br>
  <textarea rows="20" cols="80" id="TerminalWindow" name="TerminalWindow" spellcheck="false" style = "resize:none" placeholder="Terminal Window Will Activate When Device is Connected" readonly>%s</textarea><br>
  <form id="command" action="/EnterCommand" method="POST" onkeydown="PressEnter(event,'command')">
-<input type="text" name="SendCommand" value="" spellcheck="false" placeholder="Enter Command" size="82"
+<input type="text" name="SendCommand" value="" spellcheck="false" placeholder="Enter Command" size="65"
 autocomplete="off" autofocus="autofocus">
- <input type="submit" id="SendCommand" name="SendCommand" value="Send Command" hidden="hidden">
+<input type="submit" id="SendCommand" name="SendCommand" value="Send Command">
  <input type="text" name="SendCommand" value="" hidden="hidden">
  </form>
 <form action="/" method="POST">

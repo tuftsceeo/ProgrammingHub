@@ -2,13 +2,13 @@
 <body style="width:960px; margin: 20px auto;">
 <h1>Programming Hub</h1>
 <aside style="float:right;width:720px;">
-<img src="images\ev3dev&dongle.png" alt="EV3" width="200" height="234">
+<img src="https://raw.githubusercontent.com/tuftsceeo/ProgrammingHub/master/includes/images/ev3dev%26dongle.png?token=ALIIF3AUFFZS73CKM2M7PEK5CDR7W" alt="EV3" width="200" height="234">
 </aside>
-<form id="EnterIP" action="/" method="POST" onkeydown="PressEnter(event,EnterIP)">
+<form id="EnterDevice" action="/" method="POST" onkeydown="PressEnter(event,EnterDevice)">
   <span>Device</span><br>
   <select id="deviceSelect" name = "device">
   	<option value="" disabled selected>Select Device Type</option>
-    <option value="EV3">EV3</option>
+    <option value="EV3" selected>EV3</option>
     <option value="Other" disabled>More Devices Coming Soon</option>
   </select><br><br>
  <span>Username</span><br>
@@ -16,13 +16,22 @@
  <span>Password</span><br>
  <input type="text" name="password" placeholder="Password" value="Maker" size="25" autocomplete="off"><br><br>
  <span>IP Address</span><br>
- <input type="text" name="ipAddress" placeholder="IP Address" size="25" autocomplete="off"><br><br>
+ <input type="text" name="ipAddress" placeholder="IP Address" value="130.64.95.110" size="25" autocomplete="off"><br><br>
  <input type="submit" name="Connect" value="Connect">
 </form>
 <br>
 <form action="/" method="POST">
      <input type="submit" name="bypass" value="Skip (Go to Welcome Page)">
 </form>
-<script src="PressEnter.js"></script>
+<script>
+function PressEnter(e,FormID) {
+    // If Enter is Pressed
+    if ( (window.event ? event.keyCode : e.which) == 13) {
+    	// Submit the Form
+
+        document.getElementById(FormID).submit();
+    }
+}
+</script>
 </body>
 </html>

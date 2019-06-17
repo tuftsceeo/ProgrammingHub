@@ -63,7 +63,7 @@ def setPage(post_data):
 def setPageContent(page):
     global pageContent
     if page == 'landing':
-        pageContent = (open(os.getcwd()+'/includes/Landing.html').read())
+        pageContent = (open(os.getcwd()+'/includes/LandingV2.html').read())
     elif page == 'simplePage':
         pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected)))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())
     elif page == 'page2':
@@ -72,12 +72,6 @@ def setPageContent(page):
             rows=pyCode[line].count('\n')+1
             pageContent = pageContent + Form_html.format(rows,line,pyCode[line])
     return pageContent
-
-# def readCommands(post_data):
-#     if 'REPL' in post_data:
-#         LinesOfCode = unquote(post_data.split("&")[0].replace("+", " ")).split('\n')
-#         print(LinesOfCode)
-#         return LinesOfCode
 
 def InitSSH(host,username,password):
     global connected, ssh, channel, page, reply,ev3dev
@@ -135,29 +129,49 @@ def refreshTerminal(CurrentReply):
     if reply != CurrentReply:
         printTerminal(reply)
 
+def SetMimeType(path):
+    #print("Path: %s" % path)
+    global mimetype
+    if path.endswith(".jpg"):
+        mimetype='image/jpg'
+    elif path.endswith(".png"):
+        mimetype='image/png'
+    elif path.endswith(".gif"):
+        mimetype='image/gif'
+    elif path.endswith(".js"):
+        mimetype='text/javascript'
+    elif path.endswith(".css"):
+        mimetype='text/css'
+    elif path.endswith(".ico"):
+        mimetype='image/vnd.microsoft.icon'
+    else:
+        mimetype='text/html'
+    return mimetype
+
+def parseDevice(post_data):
+    global Device,Username,Password,IP
+    Device = ((post_data.split('device='))[1].split('&')[0])
+    Username = ((post_data.split('username='))[1].split('&')[0])
+    Password = ((post_data.split('password='))[1].split('&')[0])
+    IP = ((post_data.split('ipAddress='))[1].split('&')[0])
+    return Device,Username,Password,IP
+
+
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
 
     def do_HEAD(self,pageContent):
         self.send_response(200)
-        # if '.png' in pageContent:
-        #     MIME = 'image/png'
-        # if '.js' in pageContent:
-        #     MIME = 'application/x-javascript'
-        # else:
-        #     MIME = 'text/html'
-        MIME = 'text/html'
-        self.send_header('Content-type', MIME)
+        #print("self.path: %s" % (self.path))
+        SetMimeType(self.path)
+        #print("mimetype: %s" % (mimetype))
+        self.send_header('Content-type', mimetype)
         self.end_headers()
 
     def _redirect(self, path):
         self.send_response(303)
-        # if '.png' in pageContent:
-        #     MIME = 'image/png'
-        # else:
-        #     MIME = 'text/html'
-        MIME = 'text/html'
-        self.send_header('Content-type', MIME)
+        SetMimeType(self.path)
+        self.send_header('Content-type', mimetype)
         self.send_header('Location', path)
         self.end_headers()
 
@@ -171,25 +185,34 @@ class MyServer(BaseHTTPRequestHandler):
         global ssh, connected, page
         content_length = int(self.headers['Content-Length'])  # Get the size of data
         post_data = self.rfile.read(content_length).decode('utf-8')  # Get the data
-        post_data = post_data.split("=")[1]  # Only keep the value
-        print(post_data) # Uncomment for debugging
-        setPage(post_data) # Change page
-        # readCommands(post_data) # Read Commands from Forms
-        if 'Connect' in post_data:
-            ip = post_data.split("&")[0]
-            InitSSH(ip,'robot','maker')
+        print(post_data)
+        if 'device' in post_data:
+            parseDevice(post_data)
+            InitSSH(IP,Username,Password)
             sleep(.75)
             ReadSSH()
             printTerminal(reply)
-            print("Reply: %s" % reply)
-        elif 'Close' in post_data:
+            #print("Reply: %s" % reply)
+        else:
+            post_data = post_data.split("=")[1]  # Only keep the value
+            print(post_data) # Uncomment for debugging
+        setPage(post_data) # Change page
+        # readCommands(post_data) # Read Commands from Forms
+        # if 'Connect' in post_data: # Code for original Landing Page
+        #     ip = post_data.split("&")[0]
+        #     InitSSH(ip,'robot','maker')
+        #     sleep(.75)
+        #     ReadSSH()
+        #     printTerminal(reply)
+        #     print("Reply: %s" % reply)
+        if 'Close' in post_data:
             CloseSSH()
         elif 'SendCommand' in post_data:
             command = unquote(post_data.split("&")[-2].replace("+", " "))
             #print("Command: %s" % command)
             WriteSSH(command+'\n')
             if 'python' in post_data: #opening a python session takes more time
-                sleep(2.5)
+                sleep(2.75)
                 if '3' in post_data:
                     sleep(.75)
             else:

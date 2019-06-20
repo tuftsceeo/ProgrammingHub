@@ -6,14 +6,19 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import unquote
 import getpass, sys, socket, os, webbrowser
 import paramiko
+# from threading import Thread
+# import xml.etree.ElementTree as xml
+
 
 
 # Set Content for the Forms
-pyCode = {'Beep':'''import ev3dev.ev3 as ev3\nev3.Sound.beep()''',
-          'Green':'''import ev3dev.ev3 as ev3\nev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.GREEN)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.GREEN)''',
-          'Yellow':'''import ev3dev.ev3 as ev3\nev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.YELLOW)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.YELLOW)''',
-          'Red':'''import ev3dev.ev3 as ev3\nev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.RED)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.RED)''',
-          'Fwd':'''import ev3dev.ev3 as ev3\nmotor_left = ev3.LargeMotor('outB')\nmotor_right = ev3.LargeMotor('outC')\nspeed = 80 # Set Speed\nmotor_left.run_direct(duty_cycle_sp=speed)\nmotor_right.run_direct(duty_cycle_sp=speed)'''}
+pyCode = {'ev3dev':'''import ev3dev.ev3 as ev3''',
+          'Beep':'''ev3.Sound.beep()''',
+          'Green':'''ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.GREEN)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.GREEN)''',
+          'Yellow':'''ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.YELLOW)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.YELLOW)''',
+          'Red':'''ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.RED)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.RED)''',
+          'Fwd':'''motor_left = ev3.LargeMotor('outB')\nmotor_right = ev3.LargeMotor('outC')\nspeed = 80 # Set Speed\nmotor_left.run_direct(duty_cycle_sp=speed)\nmotor_right.run_direct(duty_cycle_sp=speed)''',
+          'Stop':'''speed = 0 # Set Speed to Zero\nmotor_left.run_direct(duty_cycle_sp=speed)\nmotor_right.run_direct(duty_cycle_sp=speed)'''}
 
 # HTML for Forms
 Form_html = ''' 
@@ -39,6 +44,7 @@ pageContent = '''
 ssh = None
 channel = None
 reply=''
+ConnectionFailed=False
 
 # Get IP Address
 ip_address = '';
@@ -63,9 +69,9 @@ def setPage(post_data):
 def setPageContent(page):
     global pageContent
     if page == 'landing':
-        pageContent = (open(os.getcwd()+'/includes/LandingV2.html').read())
+        pageContent = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed)))
     elif page == 'simplePage':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected)))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected)))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
     elif page == 'page2':
         pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected)))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
         for line in pyCode:
@@ -74,7 +80,7 @@ def setPageContent(page):
     return pageContent
 
 def InitSSH(host,username,password):
-    global connected, ssh, channel, page, reply,ev3dev
+    global connected, ssh, channel, page, reply, ConnectionFailed
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
@@ -83,13 +89,15 @@ def InitSSH(host,username,password):
         #print("Connected to %s" % host)
         #print(channel)
         connected = True
+        ConnectionFailed=False
         page = 'simplePage'
         reply = channel.recv(9999).decode()
     except:
+        ConnectionFailed = True
         print("Connection Failed")
         connected = False #Change to failed and add text to the landing page for failure
         reply = ''
-    return connected, ssh, channel, page, reply
+    return connected, ssh, channel, page, reply, ConnectionFailed
 
 def CloseSSH():
     global connected, ssh, channel, page
@@ -97,22 +105,29 @@ def CloseSSH():
         channel.close()
     if ssh != None:
         ssh.close()
-    page = 'landing'
     connected = False
     return connected, page
 
 def WriteSSH(string):
-    global ssh, channel, reply
+    global ssh, channel, reply, connected
     if ssh != None and channel != None:
-        size = channel.send(string.encode('utf-8'))
+        try:
+            size = channel.send(string.encode('utf-8'))
+        except:
+            connected = False
+    return connected
 
 def ReadSSH():
-    global ssh, channel, reply
+    global ssh, channel, reply, connected
     if ssh != None and channel != None and channel.recv_ready():
         reply = channel.recv(9999).decode()
         if 'Debian' in reply: #Take out ASCII ev3dev logo becuase it doesn't look right in the textbox
-            reply = "\nDebian"+reply.split("Debian")[1] 
-    return reply
+            reply = "\nDebian"+reply.split("Debian")[1]
+    else: 
+        connected = False
+        reply = ''
+        CloseSSH()
+    return reply, connected
 
 def printTerminal(reply):
     global terminal
@@ -125,7 +140,13 @@ def clearTerminal():
     return terminal
 
 def refreshTerminal(CurrentReply):
-    ReadSSH()
+    global ssh, channel, connected
+    if ssh != None and channel != None and channel.recv_ready():
+        reply = channel.recv(9999).decode()
+        if 'Debian' in reply: #Take out ASCII ev3dev logo becuase it doesn't look right in the textbox
+            reply = "\nDebian"+reply.split("Debian")[1]
+    else:
+        reply=''
     if reply != CurrentReply:
         printTerminal(reply)
 
@@ -156,6 +177,14 @@ def parseDevice(post_data):
     IP = ((post_data.split('ipAddress='))[1].split('&')[0])
     return Device,Username,Password,IP
 
+# def thread2(CurrentReply):
+#     ReadSSH()
+#     if reply != CurrentReply:
+#         filename = (os.getcwd()+'/includes/note.xml')
+#         root = xml.Element("note")
+#         userelement = xml.Element("terminalContent")
+#         uid = xml.SubElement(userelement, "uid")
+#         uid.text = reply
 
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
@@ -189,13 +218,14 @@ class MyServer(BaseHTTPRequestHandler):
         if 'device' in post_data:
             parseDevice(post_data)
             InitSSH(IP,Username,Password)
-            sleep(.75)
-            ReadSSH()
-            printTerminal(reply)
+            if connected == True:
+                sleep(1)
+                ReadSSH()
+                printTerminal(reply)
             #print("Reply: %s" % reply)
         else:
             post_data = post_data.split("=")[1]  # Only keep the value
-            print(post_data) # Uncomment for debugging
+            #print(post_data) # Uncomment for debugging
         setPage(post_data) # Change page
         # readCommands(post_data) # Read Commands from Forms
         # if 'Connect' in post_data: # Code for original Landing Page
@@ -212,13 +242,16 @@ class MyServer(BaseHTTPRequestHandler):
             #print("Command: %s" % command)
             WriteSSH(command+'\n')
             if 'python' in post_data: #opening a python session takes more time
-                sleep(2.75)
+                sleep(3)
                 if '3' in post_data:
                     sleep(.75)
             else:
                 sleep(.5)
-            ReadSSH()
-            printTerminal(reply)
+            if connected == True:
+                ReadSSH()
+                printTerminal(reply)
+            if connected == False:
+                clearTerminal()
             #print("Reply: %s" % reply)
         elif 'Clear' in post_data:
             clearTerminal()
@@ -226,6 +259,7 @@ class MyServer(BaseHTTPRequestHandler):
             refreshTerminal(reply)
         elif 'REPL' in post_data:
             command = unquote(post_data.split("&")[-2].replace("+", " "))
+            print(command)
             WriteSSH(command+'\n')
             sleep(.5)
             ReadSSH()
@@ -236,11 +270,14 @@ class MyServer(BaseHTTPRequestHandler):
 # Create Webserver
 if __name__ == '__main__':
     http_server = HTTPServer((ip_address, host_port), MyServer)
+    #http_server.listen(host_port, address='project_name.io')
     print("Server Starts - %s:%s" % (ip_address, host_port))
     webbrowser.open_new('http://%s:%s' %  (ip_address, host_port)) # Open in browser automatically
 
     try:
         http_server.serve_forever()
+        # Thread(target = http_server.serve_forever()).start()
+        # Thread(target = thread2(reply)).start()
     except KeyboardInterrupt:
         http_server.server_close()
         print("\n-------------------EXIT-------------------")

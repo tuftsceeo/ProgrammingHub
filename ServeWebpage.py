@@ -17,7 +17,7 @@ pyCode = {'ev3dev':'''import ev3dev.ev3 as ev3''',
           'Green':'''ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.GREEN)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.GREEN)''',
           'Yellow':'''ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.YELLOW)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.YELLOW)''',
           'Red':'''ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.RED)\nev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.RED)''',
-          'Fwd':'''motor_left = ev3.LargeMotor('outB')\nmotor_right = ev3.LargeMotor('outC')\nspeed = 80 # Set Speed\nmotor_left.run_direct(duty_cycle_sp=speed)\nmotor_right.run_direct(duty_cycle_sp=speed)''',
+          'Fwd':'''motor_left = ev3.LargeMotor('outB')\nmotor_right = ev3.LargeMotor('outC')\nspeed = 25 # Set Speed\nmotor_left.run_direct(duty_cycle_sp=speed)\nmotor_right.run_direct(duty_cycle_sp=speed)''',
           'Stop':'''speed = 0 # Set Speed to Zero\nmotor_left.run_direct(duty_cycle_sp=speed)\nmotor_right.run_direct(duty_cycle_sp=speed)'''}
 
 # HTML for Forms
@@ -121,8 +121,8 @@ def ReadSSH():
     global ssh, channel, reply, connected
     if ssh != None and channel != None and channel.recv_ready():
         reply = channel.recv(9999).decode()
-        if 'Debian' in reply: #Take out ASCII ev3dev logo becuase it doesn't look right in the textbox
-            reply = "\nDebian"+reply.split("Debian")[1]
+        # if 'Debian' in reply: #Take out ASCII ev3dev logo becuase it doesn't look right in the textbox
+        #     reply = "\nDebian"+reply.split("Debian")[1]
     else: 
         connected = False
         reply = ''
@@ -143,11 +143,9 @@ def refreshTerminal(CurrentReply):
     global ssh, channel, connected
     if ssh != None and channel != None and channel.recv_ready():
         reply = channel.recv(9999).decode()
-        if 'Debian' in reply: #Take out ASCII ev3dev logo becuase it doesn't look right in the textbox
-            reply = "\nDebian"+reply.split("Debian")[1]
-    else:
-        reply=''
-    if reply != CurrentReply:
+    # else:
+    #     reply=''
+    # if reply != CurrentReply:
         printTerminal(reply)
 
 def SetMimeType(path):
@@ -256,14 +254,22 @@ class MyServer(BaseHTTPRequestHandler):
         elif 'Clear' in post_data:
             clearTerminal()
         elif 'Refresh' in post_data:
+            print('refreshing...')
             refreshTerminal(reply)
         elif 'REPL' in post_data:
+            print(post_data)
             command = unquote(post_data.split("&")[-2].replace("+", " "))
-            print(command)
-            WriteSSH(command+'\n')
-            sleep(.5)
-            ReadSSH()
-            printTerminal(reply)
+            lines=len(command.splitlines())
+            print("Lines: %s" % lines)
+            for i in range(0, lines):
+                #print("Command: %s" % (command.splitlines()[i]))
+                WriteSSH(command.splitlines()[i]+'\n')
+                if 'import' in command:
+                    sleep(1)
+                else:
+                    sleep(.1)
+                ReadSSH()
+                printTerminal(reply)
         self._redirect('/')  # Redirect back to the root url
         return ssh, connected, page
 

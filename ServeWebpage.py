@@ -23,7 +23,7 @@ pyCode = {'ev3dev':'''import ev3dev.ev3 as ev3''',
 # HTML for Forms
 Form_html = ''' 
 <form action="/" method="POST">
-   <textarea rows="{}" cols="50" spellcheck="false" name = "{}"
+   <textarea class="mono" rows="{}" cols="50" spellcheck="false" name = "{}"
       style = "border:none;resize:none;background-color:powderblue"
    >{}</textarea>
    <input type="submit" name = "REPL" value = ">>>">
@@ -250,6 +250,8 @@ class MyServer(BaseHTTPRequestHandler):
                 printTerminal(reply)
             if connected == False:
                 clearTerminal()
+            if command == 'clear':
+                clearTerminal()
             #print("Reply: %s" % reply)
         elif 'Clear' in post_data:
             clearTerminal()
@@ -270,6 +272,18 @@ class MyServer(BaseHTTPRequestHandler):
                     sleep(.1)
                 ReadSSH()
                 printTerminal(reply)
+        elif 'Disconnect' in post_data:
+            clearTerminal()
+            CloseSSH()
+            page = 'landing'
+        elif 'Begin+Python+Session' in post_data:
+            WriteSSH('python3'+'\n')
+            sleep(3.75)
+            if connected == True:
+                ReadSSH()
+                printTerminal(reply)
+            if connected == False:
+                clearTerminal()
         self._redirect('/')  # Redirect back to the root url
         return ssh, connected, page
 

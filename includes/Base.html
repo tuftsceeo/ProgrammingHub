@@ -2,15 +2,17 @@
 <body style="width:960px; margin: 20px auto;">
 <aside style="float:right;width:525px;">
  <br><br><br>
- <textarea class="mono" rows="25" cols="72" id="TerminalWindow" name="TerminalWindow" spellcheck="false" style = "resize:none" tabindex="-1" placeholder="Terminal Window Will Activate When Device is Connected" readonly>%s</textarea><br>
+ <textarea class="mono" rows="30" cols="72" id="TerminalWindow" name="TerminalWindow" spellcheck="false" style = "resize:none" tabindex="-1" placeholder="Terminal Window Will Activate When Device is Connected" readonly>%s</textarea><br>
  <form id="command" action="/EnterCommand" method="POST" onkeydown="PressEnter(event,'command'); PressTab(event);">
 <input type="text" class="mono" id="CommandText" name="SendCommand" value="" spellcheck="false" tabindex="-1" placeholder="Enter Command" size="59"
 autocomplete="off" autofocus="autofocus">
 <input type="submit" id="SendCommand" name="SendCommand" value="Send Command" tabindex="-1">
  </form>
 <form action="/" method="POST">
-     <input type="submit" name="Clear" value="Clear Terminal" tabindex="-1">
-     <input type="submit" name="Refresh" value="Refresh Terminal" tabindex="-1">
+     <input type="submit" name="clear" value="Clear Terminal" tabindex="-1">
+     <input type="submit" name="refresh" value="Refresh Terminal" tabindex="-1">
+     <input type="submit" name="python3" value="Begin Python Session" tabindex="-1">
+     <input type="submit" name="disconnect" value="Disconnect & Return to Landing" tabindex="-1">
  </form>
 <!--  <form id="refresh" method="POST">
    <input type="text" name="Refresh" value="Refresh" hidden="hidden" tabindex="-1">

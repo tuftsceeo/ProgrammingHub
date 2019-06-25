@@ -8,7 +8,7 @@
 <form id="EnterDevice" action="/" method="POST" onkeydown="PressEnter(event,EnterDevice)">
   <span>Device</span><br>
   <select id="deviceSelect" name = "device">
-  	<option value="" disabled selected>Select Device Type</option>
+  	<!-- <option value="" disabled selected>Select Device Type</option> -->
     <option value="EV3" selected>EV3</option>
     <option value="Other" disabled>More Devices Coming Soon</option>
   </select><br><br>
@@ -29,7 +29,6 @@ function PressEnter(e,FormID) {
     // If Enter is Pressed
     if ( (window.event ? event.keyCode : e.which) == 13) {
     	// Submit the Form
-
         document.getElementById(FormID).submit();
     }
 }

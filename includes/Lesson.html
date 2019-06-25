@@ -4,10 +4,10 @@
 <img src="https://github.com/tuftsceeo/ProgrammingHub/blob/master/includes/images/UltraSonicDrivingBase.png?raw=true" alt="UltraSonicDrivingBase" width="200" height="159"><br>
 <a href="https://le-www-live-s.legocdn.com/sc/media/lessons/mindstorms-ev3/building-instructions/ev3-ultrasonic-sensor-driving-base-61ffdfa461aee2470b8ddbeab16e2070.pdf" target="_blank">Ultrasonic Driving Base Building Instructions</a>
 </center>
-<h4>2. Run the Code</h4>
+<h4>2. Run the Code in a Python Session</h4>
 <h5>2.1 Import packages & define inputs/outputs</h5>
 <form action="/" method="POST">
-   <textarea class="monoSmall" rows="12" cols="74" spellcheck="false" name = "{}"
+   <textarea class="monoSmall" rows="13" cols="74" spellcheck="false" name = "{}"
       style = "border:none;resize:none;background-color:powderblue"
    >import ev3dev.ev3 as ev3
 from time import sleep
@@ -20,6 +20,7 @@ units = us.units # reports 'cm' even though the sensor measures 'mm'
 motor_left = ev3.LargeMotor('outB')
 motor_right = ev3.LargeMotor('outC')
 speed = 25 # Set Speed
+
 </textarea>
 <input type="submit" name = "REPL" value = "Send">
 </form>
@@ -125,8 +126,8 @@ while True:
 </textarea>
    <input type="submit" name = "REPL" value = "Send">
 </form>
+<h4>3. Drive your Robot</h4>
 <pre>
-   Instructions: 
    Type a key into the "Enter Command"
    box one at a time then press enter
 
@@ -139,7 +140,5 @@ while True:
     d           Right
     space       Stop
     q           Quit
-
-</pre>
-<br> 
+   ---------------------</pre>
 </div>

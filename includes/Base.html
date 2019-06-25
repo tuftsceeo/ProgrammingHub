@@ -59,6 +59,7 @@ setInterval(refresh, 2000);
   <select id="pageSelect" name = "page" tabindex="-1">
     <option value="simplePage">Welcome Page</option>
     <option value="page2">EV3 Example Code</option>
+    <option value="lesson">Build A Robot</option>
   </select>
   <input id="submitpage" type="submit" hidden="hidden">
  </form>
@@ -70,7 +71,9 @@ setInterval(refresh, 2000);
     index="0";
   } else if (x == 'page2') {
     index="1";
-  } else {
+  } else if (x == 'lesson') {
+    index="2";
+  }else {
     index="0";
 }
 document.getElementById("pageSelect").selectedIndex = index;

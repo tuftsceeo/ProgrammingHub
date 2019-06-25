@@ -1,7 +1,145 @@
+<div class="contain">
+<h4>1. Build the Robot with an Ultrasonic Sensor For Collision Detection</h4>
+<center>
+<img src="https://github.com/tuftsceeo/ProgrammingHub/blob/master/includes/images/UltraSonicDrivingBase.png?raw=true" alt="UltraSonicDrivingBase" width="200" height="159"><br>
+<a href="https://le-www-live-s.legocdn.com/sc/media/lessons/mindstorms-ev3/building-instructions/ev3-ultrasonic-sensor-driving-base-61ffdfa461aee2470b8ddbeab16e2070.pdf" target="_blank">Ultrasonic Driving Base Building Instructions</a>
+</center>
+<h4>2. Run the Code</h4>
+<h5>2.1 Import packages & define inputs/outputs</h5>
 <form action="/" method="POST">
-   <textarea rows="4" cols="50" spellcheck="false" name = "{}"
+   <textarea class="monoSmall" rows="12" cols="74" spellcheck="false" name = "{}"
       style = "border:none;resize:none;background-color:powderblue"
-   >{}</textarea>
-   <input type="submit" name = "REPL" value = ">>>">
+   >import ev3dev.ev3 as ev3
+from time import sleep
+
+us = ev3.UltrasonicSensor() # Connect ultrasonic sensor to any sensor port
+us.mode='US-DIST-CM' # Put the US sensor into distance mode.
+units = us.units # reports 'cm' even though the sensor measures 'mm'
+
+# Define motor outputs
+motor_left = ev3.LargeMotor('outB')
+motor_right = ev3.LargeMotor('outC')
+speed = 25 # Set Speed
+</textarea>
+<input type="submit" name = "REPL" value = "Send">
 </form>
+<h5>2.2 Define functions to get the distance, drive the robot, & set LED colors</h5>
+<form action="/" method="POST">
+   <textarea class="monoSmall" rows="39" cols="74" spellcheck="false" name = "{}"
+      style = "border:none;resize:none;background-color:powderblue"
+   ># Get distance from Ultrasonic Sensor
+def getDist():
+    return us.value()/10  # convert mm to cm
+
+# Motor commands
+def forward():
+   motor_left.run_direct(duty_cycle_sp=speed)
+   motor_right.run_direct(duty_cycle_sp=speed)
+
+def back():
+   motor_left.run_direct(duty_cycle_sp=-speed)
+   motor_right.run_direct(duty_cycle_sp=-speed)
+
+def left():
+   motor_left.run_direct( duty_cycle_sp=-speed)
+   motor_right.run_direct( duty_cycle_sp=speed)
+
+def right():
+   motor_left.run_direct( duty_cycle_sp=speed)
+   motor_right.run_direct( duty_cycle_sp=-speed)
+
+def stop():
+   motor_left.run_direct( duty_cycle_sp=0)
+   motor_right.run_direct( duty_cycle_sp=-0)
+
+# LED commands
+def red():
+    ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.RED)
+    ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.RED)
+
+def yellow():
+    ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.YELLOW)
+    ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.YELLOW)
+
+def green():
+    ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.GREEN)
+    ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.GREEN)
+
+</textarea>
+   <input type="submit" name = "REPL" value = "Send">
+</form>
+<h5>2.3 Define functions Drive the EV3 based on user inputs and set the EV3 LED color based on proximity to obstruction</h5>
+<form action="/" method="POST">
+   <textarea class="monoSmall" rows="29" cols="74" spellcheck="false" name = "{}"
+      style = "border:none;resize:none;background-color:powderblue"
+   >def driveEV3(char): # Drive the EV3 based on user inputs
+    if char == 'w':
+        forward()
+        direc = 'Forward'
+    elif char == 's':
+        back()
+        direc = 'Backward'
+    elif char == 'd':
+        right()
+        direc = 'Right'
+    elif char == 'a':
+        left()
+        direc = 'Left'
+    elif char == ' ':
+        stop()
+        direc = 'Stopped'
+    try: print('Direction: %s' % (direc))
+    except NameError: print('invalid character')
+
+def setLED(dist): # set the EV3 LED color based on proximity to obstruction
+    if dist > 50:
+      green()
+    elif dist <= 50 and dist >= 10:
+      yellow()
+    elif dist < 10:
+      red()
+    print('Distance to Obstruction: %s' % (dist))
+
+</textarea>
+   <input type="submit" name = "REPL" value = "Send">
+</form>
+<h5>2.4 Run the Code until the user presses the "q" key</h5>
+<form action="/" method="POST">
+   <textarea class="monoSmall" rows="16" cols="74" spellcheck="false" name = "{}"
+      style = "border:none;resize:none;background-color:powderblue"
+   >char = ""
+while True:
+    try:
+        char = input() # wait for keyboard input
+        if char != 'q':
+            driveEV3(char)
+            dist = getDist()
+            setLED(dist)
+        else:
+            stop()
+            print('Quitting')
+            raise Exception('quit')
+    except Exception:
+        break
+
+</textarea>
+   <input type="submit" name = "REPL" value = "Send">
+</form>
+<pre>
+   Instructions: 
+   Type a key into the "Enter Command"
+   box one at a time then press enter
+
+   ---------------------
+    KEY         COMMAND
+   ---------------------
+    w           Forward
+    s           Backward
+    a           Left
+    d           Right
+    space       Stop
+    q           Quit
+
+</pre>
 <br> 
+</div>

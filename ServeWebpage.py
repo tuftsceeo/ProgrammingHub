@@ -62,6 +62,8 @@ def setPage(post_data):
         page = 'simplePage'
     elif 'page2' in post_data:
         page = 'page2'
+    elif 'lesson' in post_data:
+        page = 'lesson'
     elif 'Return' in post_data:
         page = 'landing'
     return page
@@ -77,6 +79,8 @@ def setPageContent(page):
         for line in pyCode:
             rows=pyCode[line].count('\n')+1
             pageContent = pageContent + Form_html.format(rows,line,pyCode[line])
+    elif page == 'lesson':
+        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected)))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
     return pageContent
 
 def InitSSH(host,username,password):

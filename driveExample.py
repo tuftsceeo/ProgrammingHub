@@ -108,4 +108,3 @@ while True:
             raise Exception('quit')
     except Exception:
         break
-

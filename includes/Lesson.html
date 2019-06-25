@@ -7,7 +7,7 @@
 <h4>2. Run the Code in a Python Session</h4>
 <h5>2.1 Import packages & define inputs/outputs</h5>
 <form action="/" method="POST">
-   <textarea class="monoSmall" rows="13" cols="74" spellcheck="false" name = "{}"
+   <textarea class="monoSmall" rows="12" cols="74" spellcheck="false" name = "{}"
       style = "border:none;resize:none;background-color:powderblue"
    >import ev3dev.ev3 as ev3
 from time import sleep
@@ -20,7 +20,6 @@ units = us.units # reports 'cm' even though the sensor measures 'mm'
 motor_left = ev3.LargeMotor('outB')
 motor_right = ev3.LargeMotor('outC')
 speed = 25 # Set Speed
-
 </textarea>
 <input type="submit" name = "REPL" value = "Send">
 </form>

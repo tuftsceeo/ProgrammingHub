@@ -273,7 +273,7 @@ class MyServer(BaseHTTPRequestHandler):
                 if 'import' in command:
                     sleep(1)
                 else:
-                    sleep(.1)
+                    sleep(.15)
                 ReadSSH()
                 printTerminal(reply)
         elif 'Disconnect' in post_data:

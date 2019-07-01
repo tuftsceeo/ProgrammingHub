@@ -238,7 +238,7 @@ class MyServer(BaseHTTPRequestHandler):
                 ipIndex = ipList.index(None)
                 ipList[ipIndex] = ipPost
             else:
-                ipIndex = ipList.index(None)
+                ipIndex = ipList.index(ipPost)
         if 'device' in post_data:
             parseDevice(post_data)
             InitSSH(IP,Username,Password)

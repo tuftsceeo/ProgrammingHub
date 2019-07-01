@@ -13,16 +13,22 @@ import paramiko
 DeviceLimit = 25
 ipList = [None]*DeviceLimit
 ipIndex = 0
+IP = '0'
 
-connected = [None]*DeviceLimit
-page = [None]*DeviceLimit
-terminal = [None]*DeviceLimit
-pageContent = [None]*DeviceLimit
+connected = [False]*DeviceLimit
+page = ['landing']*DeviceLimit
+terminal = ['']*DeviceLimit
+pageContent = ['''
+<html>
+<body style="width:960px; margin: 20px auto;">
+<h4>There is a problem Loading this page </h4>
+</body>
+</html>''']*DeviceLimit
 
 ssh = [None]*DeviceLimit
 channel = [None]*DeviceLimit
-reply = [None]*DeviceLimit
-ConnectionFailed = [None]*DeviceLimit
+reply = ['']*DeviceLimit
+ConnectionFailed = [False]*DeviceLimit
 
 # Set Content for the Forms
 pyCode = {'ev3dev':'''import ev3dev.ev3 as ev3''',
@@ -43,23 +49,6 @@ Form_html = '''
 </form>
 '''
 
-# Initialize global variables
-connected = False
-page = 'landing'
-terminal = ''
-pageContent = '''
-<html>
-<body style="width:960px; margin: 20px auto;">
-<h4>There is a problem Loading this page </h4>
-</body>
-</html>''' # Something very bad has happened if you see this
-
-ssh = None
-channel = None
-reply=''
-ConnectionFailed=False
-IP = '0'
-
 # Get IP Address
 ip_address = '';
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -73,98 +62,98 @@ host_port = 8000
 def setPage(post_data):
     global page
     if 'simplePage' in post_data or 'Skip' in post_data:
-        page = 'simplePage'
+        page[ipIndex] = 'simplePage'
     elif 'page2' in post_data:
-        page = 'page2'
+        page[ipIndex] = 'page2'
     elif 'lesson' in post_data:
-        page = 'lesson'
+        page[ipIndex] = 'lesson'
     elif 'Return' in post_data:
-        page = 'landing'
+        page[ipIndex] = 'landing'
     return page
 
 def setPageContent(page):
     global pageContent
     if page == 'landing':
-        pageContent = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed)))
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed)))
     elif page == 'simplePage':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
     elif page == 'page2':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
         for line in pyCode:
             rows=pyCode[line].count('\n')+1
-            pageContent = pageContent + Form_html.format(rows,line,pyCode[line])
-    elif page == 'lesson':
-        pageContent = (open(os.getcwd()+'/includes/Base.html').read()%(terminal,page,str(connected),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
+            pageContent[ipIndex] = pageContent[ipIndex] + Form_html.format(rows,line,pyCode[line])
+    elif page[ipIndex] == 'lesson':
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
     return pageContent
 
 def InitSSH(host,username,password):
     global connected, ssh, channel, page, reply, ConnectionFailed
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh[ipIndex] = paramiko.SSHClient()
+    ssh[ipIndex].set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh.connect(host, username='robot', password='maker', timeout = 5)
-        channel = ssh.invoke_shell()
+        ssh[ipIndex].connect(host, username='robot', password='maker', timeout = 5)
+        channel[ipIndex] = ssh[ipIndex].invoke_shell()
         #print("Connected to %s" % host)
         #print(channel)
-        connected = True
-        ConnectionFailed=False
-        page = 'simplePage'
-        reply = channel.recv(9999).decode()
+        connected[ipIndex] = True
+        ConnectionFailed[ipIndex]=False
+        page[ipIndex] = 'simplePage'
+        reply[ipIndex] = channel[ipIndex].recv(9999).decode()
     except:
-        ConnectionFailed = True
+        ConnectionFailed[ipIndex] = True
         print("Connection Failed")
-        connected = False #Change to failed and add text to the landing page for failure
-        reply = ''
+        connected[ipIndex] = False #Change to failed and add text to the landing page for failure
+        reply[ipIndex] = ''
     return connected, ssh, channel, page, reply, ConnectionFailed
 
 def CloseSSH():
     global connected, ssh, channel, page
-    if channel != None:
-        channel.close()
-    if ssh != None:
-        ssh.close()
-    connected = False
+    if channel[ipIndex] != None:
+        channel[ipIndex].close()
+    if ssh[ipIndex] != None:
+        ssh[ipIndex].close()
+    connected[ipIndex] = False
     return connected, page
 
 def WriteSSH(string):
     global ssh, channel, reply, connected
-    if ssh != None and channel != None:
+    if ssh[ipIndex] != None and channel[ipIndex] != None:
         try:
-            size = channel.send(string.encode('utf-8'))
+            size = channel[ipIndex].send(string.encode('utf-8'))
         except:
-            connected = False
+            connected[ipIndex] = False
     return connected
 
 def ReadSSH():
     global ssh, channel, reply, connected
-    if ssh != None and channel != None and channel.recv_ready():
-        reply = channel.recv(9999).decode()
+    if ssh[ipIndex] != None and channel[ipIndex] != None and channel[ipIndex].recv_ready():
+        reply[ipIndex] = channel[ipIndex].recv(9999).decode()
         # if 'Debian' in reply: #Take out ASCII ev3dev logo becuase it doesn't look right in the textbox
         #     reply = "\nDebian"+reply.split("Debian")[1]
     else: 
-        connected = False
-        reply = ''
+        connected[ipIndex] = False
+        reply[ipIndex] = ''
         CloseSSH()
     return reply, connected
 
 def printTerminal(reply):
     global terminal
-    terminal = terminal+reply
+    terminal[ipIndex] = terminal[ipIndex]+reply
     return terminal
 
 def clearTerminal():
     global terminal
-    terminal =''
+    terminal[ipIndex] =''
     return terminal
 
 def refreshTerminal(CurrentReply):
     global ssh, channel, connected
-    if ssh != None and channel != None and channel.recv_ready():
-        reply = channel.recv(9999).decode()
+    if ssh[ipIndex] != None and channel[ipIndex] != None and channel[ipIndex].recv_ready():
+        reply[ipIndex] = channel[ipIndex].recv(9999).decode()
     # else:
     #     reply=''
     # if reply != CurrentReply:
-        printTerminal(reply)
+        printTerminal(reply[ipIndex])
 
 def SetMimeType(path):
     #print("Path: %s" % path)
@@ -222,30 +211,31 @@ class MyServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
         #print('page = ' + page)
-        self.do_HEAD(pageContent)
-        setPageContent(page)
-        self.wfile.write(pageContent.encode("utf-8"))
+        self.do_HEAD(pageContent[ipIndex])
+        setPageContent(page[ipIndex])
+        self.wfile.write(pageContent[ipIndex].encode("utf-8"))
 
     def do_POST(self):
-        global ssh, connected, page
+        global ssh, connected, page, ipIndex
         content_length = int(self.headers['Content-Length'])  # Get the size of data
         post_data = self.rfile.read(content_length).decode('utf-8')  # Get the data
         print(post_data)
         if 'IP=' in post_data:
             ipPOST = post_data.split("=")[1]
-            print(ipPOST)
-            if ipPOST not in IP:
+            print("ipPOST: %s" % ipPOST)
+            if ipPOST not in ipList:
                 ipIndex = ipList.index(None)
-                ipList[ipIndex] = ipPost
+                ipList[ipIndex] = ipPOST
             else:
-                ipIndex = ipList.index(ipPost)
+                ipIndex = ipList.index(ipPOST)
+        print("ipIndex: %s" % ipIndex)
         if 'device' in post_data:
             parseDevice(post_data)
             InitSSH(IP,Username,Password)
-            if connected == True:
+            if connected[ipIndex] == True:
                 sleep(1)
                 ReadSSH()
-                printTerminal(reply)
+                printTerminal(reply[ipIndex])
             #print("Reply: %s" % reply)
         else:
             post_data = post_data.split("=")[1]  # Only keep the value
@@ -271,10 +261,10 @@ class MyServer(BaseHTTPRequestHandler):
                     sleep(.75)
             else:
                 sleep(.5)
-            if connected == True:
+            if connected[ipIndex] == True:
                 ReadSSH()
                 printTerminal(reply)
-            if connected == False:
+            if connected[ipIndex] == False:
                 clearTerminal()
             if command == 'clear':
                 clearTerminal()
@@ -300,17 +290,17 @@ class MyServer(BaseHTTPRequestHandler):
         elif 'Disconnect' in post_data:
             clearTerminal()
             CloseSSH()
-            page = 'landing'
+            page[ipIndex] = 'landing'
         elif 'Begin+Python+Session' in post_data:
             WriteSSH('python3'+'\n')
             sleep(3.75)
-            if connected == True:
+            if connected[ipIndex] == True:
                 ReadSSH()
                 printTerminal(reply)
-            if connected == False:
+            if connected[ipIndex] == False:
                 clearTerminal()
         self._redirect('/')  # Redirect back to the root url
-        return ssh, connected, page
+        return ssh, connected, page, ipIndex
 
 # Create Webserver
 if __name__ == '__main__':

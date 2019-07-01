@@ -11,12 +11,12 @@ function setValue() { // setValue changes the selected item in dropdown menu bas
     var index = "0";
     if (x == 'simplePage') {
       index="0";
-  } else if (x == 'page2') {
+    } else if (x == 'page2') {
       index="1";
-  } else {
+    } else {
       index="0";
-  }
-  document.getElementById("pageSelect").selectedIndex = index;
+    }
+    document.getElementById("pageSelect").selectedIndex = index;
 }
 function getValue() { // getValue used to test the ability to get the value of the selected page
    var x = document.getElementById("pageSelect").selectedIndex;

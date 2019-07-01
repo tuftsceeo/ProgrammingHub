@@ -3,12 +3,11 @@
 <aside style="float:right;width:525px;">
  <br><br><br>
  <textarea class="mono" rows="40" cols="72" id="TerminalWindow" name="TerminalWindow" spellcheck="false" style = "resize:none" tabindex="-1" placeholder="Terminal Window Will Activate When Device is Connected" readonly>%s</textarea><br>
- <form id="command" action="/EnterCommand" method="POST" onkeydown="PressEnter(event,'command'); PressTab(event);">
-<input type="text" class="mono" id="CommandText" name="SendCommand" value="" spellcheck="false" tabindex="-1" placeholder="Enter Command" size="59"
-autocomplete="off" autofocus="autofocus">
+ <form id="command" action="/EnterCommand" method="POST" onkeydown="submitIPformEnter(event); PressEnter(event,'command'); PressTab(event);">
+<input type="text" class="mono" id="CommandText" name="SendCommand" value="" spellcheck="false" tabindex="-1" placeholder="Enter Command" size="59" autocomplete="off" autofocus="autofocus">
 <input type="submit" id="SendCommand" name="SendCommand" value="Send Command" tabindex="-1">
  </form>
-<form action="/" method="POST">
+<form action="/" method="POST" onsubmit="submitIPform()">
      <input type="submit" name="clear" value="Clear Terminal" tabindex="-1">
      <input type="submit" name="refresh" value="Refresh Terminal" tabindex="-1">
      <input type="submit" name="python3" value="Begin Python Session" tabindex="-1">
@@ -35,6 +34,7 @@ setInterval(refresh, 2000);
 <h1>Programming Hub</h1>
 <h4 hidden id = "page">%s</h4>
 <h4 hidden id = "connected">%s</h4> 
+<h4 hidden id = "IP">%s</h4> 
 <form action="/" method="POST">
      <span id="dot"></span> <!-- Blink red  -->
      <span id="connectionStatus"></span>
@@ -54,7 +54,24 @@ setInterval(refresh, 2000);
     document.getElementById("return").style.display = "initial";
   }
 </script>
-<form id = "pageForm" action="/Page" method="POST" onchange="submit('pageForm')">
+<form hidden id = "IPform" action="/IP" method="POST">
+  <input type="text" id="IPtext" name="IP" value="" spellcheck="false" tabindex="-1" autocomplete="off">
+  <input id="submitIP" type="submit">
+</form>
+<script>
+  // var page = document.getElementById('page').innerHTML;
+  document.getElementById('IPtext').value = 
+  document.getElementById('IP').innerHTML;
+  function submitIPform() {
+  document.getElementById("IPform").submit();
+}
+  function submitIPformEnter(e) {
+    if ( (window.event ? event.keyCode : e.which) == 13) {
+      document.getElementById("IPform").submit();
+    }
+}
+</script>
+<form id = "pageForm" action="/Page" method="POST" onchange="submitIPform();submit('pageForm');">
   <span>Select a page: </span>
   <select id="pageSelect" name = "page" tabindex="-1">
     <option value="simplePage">Welcome Page</option>

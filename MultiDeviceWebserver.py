@@ -9,7 +9,20 @@ import paramiko
 # from threading import Thread
 # import xml.etree.ElementTree as xml
 
+#initialize variables used to define page content
+DeviceLimit = 25
+ipList = [None]*DeviceLimit
+ipIndex = 0
 
+connected = [None]*DeviceLimit
+page = [None]*DeviceLimit
+terminal = [None]*DeviceLimit
+pageContent = [None]*DeviceLimit
+
+ssh = [None]*DeviceLimit
+channel = [None]*DeviceLimit
+reply = [None]*DeviceLimit
+ConnectionFailed = [None]*DeviceLimit
 
 # Set Content for the Forms
 pyCode = {'ev3dev':'''import ev3dev.ev3 as ev3''',
@@ -218,6 +231,14 @@ class MyServer(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])  # Get the size of data
         post_data = self.rfile.read(content_length).decode('utf-8')  # Get the data
         print(post_data)
+        if 'IP=' in post_data:
+            ipPOST = post_data.split("=")[1]
+            print(ipPOST)
+            if ipPOST not in IP:
+                ipIndex = ipList.index(None)
+                ipList[ipIndex] = ipPost
+            else:
+                ipIndex = ipList.index(None)
         if 'device' in post_data:
             parseDevice(post_data)
             InitSSH(IP,Username,Password)

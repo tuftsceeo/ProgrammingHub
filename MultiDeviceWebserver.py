@@ -14,6 +14,7 @@ DeviceLimit = 25
 ipList = [None]*DeviceLimit
 ipIndex = 0
 IP = '0'
+ClientipList = [0]*DeviceLimit
 
 connected = [False]*DeviceLimit
 page = ['landing']*DeviceLimit
@@ -74,7 +75,7 @@ def setPage(post_data):
 def setPageContent(page):
     global pageContent
     if page == 'landing':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed)))
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed[ipIndex])))
     elif page == 'simplePage':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
     elif page == 'page2':
@@ -220,6 +221,11 @@ class MyServer(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])  # Get the size of data
         post_data = self.rfile.read(content_length).decode('utf-8')  # Get the data
         print(post_data)
+        ClientIP = self.address_string() # Get the Client IP Address
+        print("ClientIP: %s" % ClientIP) 
+        if ClientIP not in ClientipList: # If the Client IP Address isn't already on the list
+            page = 'landing'  # send the client to the landing page
+            ClientipList[ClientipList.index(0)] = ClientIP # add the client IP to the list
         if 'IP=' in post_data:
             ipPOST = post_data.split("=")[1]
             print("ipPOST: %s" % ipPOST)
@@ -240,7 +246,8 @@ class MyServer(BaseHTTPRequestHandler):
         else:
             post_data = post_data.split("=")[1]  # Only keep the value
             #print(post_data) # Uncomment for debugging
-        setPage(post_data) # Change page
+        if 'page' in post_data:
+            setPage(post_data) # Change page
         # readCommands(post_data) # Read Commands from Forms
         # if 'Connect' in post_data: # Code for original Landing Page
         #     ip = post_data.split("&")[0]

@@ -14,7 +14,6 @@ DeviceLimit = 25
 ipList = [None]*DeviceLimit
 ipIndex = 0
 IP = '0'
-ClientipList = [0]*DeviceLimit
 
 connected = [False]*DeviceLimit
 page = ['landing']*DeviceLimit
@@ -62,6 +61,7 @@ host_port = 8000
 
 def setPage(post_data):
     global page
+    print("ipIndex: %s" % ipIndex)
     if 'simplePage' in post_data or 'Skip' in post_data:
         page[ipIndex] = 'simplePage'
     elif 'page2' in post_data:
@@ -70,20 +70,21 @@ def setPage(post_data):
         page[ipIndex] = 'lesson'
     elif 'Return' in post_data:
         page[ipIndex] = 'landing'
+    print("page: %s" % page)
     return page
 
-def setPageContent(page):
+def setPageContent(pagelocal):
     global pageContent
-    if page == 'landing':
+    if pagelocal == 'landing':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed[ipIndex])))
-    elif page == 'simplePage':
+    elif pagelocal == 'simplePage':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
-    elif page == 'page2':
+    elif pagelocal == 'page2':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
         for line in pyCode:
             rows=pyCode[line].count('\n')+1
             pageContent[ipIndex] = pageContent[ipIndex] + Form_html.format(rows,line,pyCode[line])
-    elif page[ipIndex] == 'lesson':
+    elif pagelocal == 'lesson':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
     return pageContent
 
@@ -183,6 +184,21 @@ def parseDevice(post_data):
     IP = ((post_data.split('ipAddress='))[1].split('&')[0])
     return Device,Username,Password,IP
 
+def getClientIP(self):
+    global ipList, ipIndex, page
+    ClientIP = self.address_string() # Get the Client IP Address
+    print("ClientIP: %s" % ClientIP) 
+    if ClientIP in ipList: # If the Client IP Address is already on the list
+        print('Client IP Address Already on the List')
+        ipIndex = ipList.index(ClientIP) # Set the ipIndex to the index matching the Client IP
+    else: # If the Client IP Address isn't already on the list
+        ipIndex = ipList.index(None)
+        ipList[ipIndex] = ClientIP # add the client IP to the list
+        print('Client IP Address Added to the List')
+        page[ipIndex] = 'landing'  # send the client to the landing page
+    print("ipList: %s" % ipList)
+    return ipList, ipIndex, page
+
 # def thread2(CurrentReply):
 #     ReadSSH()
 #     if reply != CurrentReply:
@@ -221,20 +237,16 @@ class MyServer(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])  # Get the size of data
         post_data = self.rfile.read(content_length).decode('utf-8')  # Get the data
         print(post_data)
-        ClientIP = self.address_string() # Get the Client IP Address
-        print("ClientIP: %s" % ClientIP) 
-        if ClientIP not in ClientipList: # If the Client IP Address isn't already on the list
-            page = 'landing'  # send the client to the landing page
-            ClientipList[ClientipList.index(0)] = ClientIP # add the client IP to the list
-        if 'IP=' in post_data:
-            ipPOST = post_data.split("=")[1]
-            print("ipPOST: %s" % ipPOST)
-            if ipPOST not in ipList:
-                ipIndex = ipList.index(None)
-                ipList[ipIndex] = ipPOST
-            else:
-                ipIndex = ipList.index(ipPOST)
-        print("ipIndex: %s" % ipIndex)
+        getClientIP(self)
+        # if 'IP=' in post_data:
+        #     ipPOST = post_data.split("=")[1]
+        #     print("ipPOST: %s" % ipPOST)
+        #     if ipPOST not in ipList:
+        #         ipIndex = ipList.index(None)
+        #         ipList[ipIndex] = ipPOST
+        #     else:
+        #         ipIndex = ipList.index(ipPOST)
+        # print("ipIndex: %s" % ipIndex)
         if 'device' in post_data:
             parseDevice(post_data)
             InitSSH(IP,Username,Password)
@@ -246,8 +258,7 @@ class MyServer(BaseHTTPRequestHandler):
         else:
             post_data = post_data.split("=")[1]  # Only keep the value
             #print(post_data) # Uncomment for debugging
-        if 'page' in post_data:
-            setPage(post_data) # Change page
+        setPage(post_data) # Change page
         # readCommands(post_data) # Read Commands from Forms
         # if 'Connect' in post_data: # Code for original Landing Page
         #     ip = post_data.split("&")[0]

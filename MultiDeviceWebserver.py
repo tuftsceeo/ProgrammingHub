@@ -13,7 +13,7 @@ import paramiko
 DeviceLimit = 25
 ipList = [None]*DeviceLimit
 ipIndex = 0
-IP = '0'
+IP = [None]*DeviceLimit
 
 connected = [False]*DeviceLimit
 page = ['landing']*DeviceLimit
@@ -78,14 +78,14 @@ def setPageContent(pagelocal):
     if pagelocal == 'landing':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed[ipIndex])))
     elif pagelocal == 'simplePage':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
     elif pagelocal == 'page2':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
         for line in pyCode:
             rows=pyCode[line].count('\n')+1
             pageContent[ipIndex] = pageContent[ipIndex] + Form_html.format(rows,line,pyCode[line])
     elif pagelocal == 'lesson':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
     return pageContent
 
 def InitSSH(host,username,password):
@@ -138,9 +138,9 @@ def ReadSSH():
         CloseSSH()
     return reply, connected
 
-def printTerminal(reply):
+def printTerminal(replyLocal):
     global terminal
-    terminal[ipIndex] = terminal[ipIndex]+reply
+    terminal[ipIndex] = terminal[ipIndex]+replyLocal
     return terminal
 
 def clearTerminal():
@@ -177,12 +177,12 @@ def SetMimeType(path):
     return mimetype
 
 def parseDevice(post_data):
-    global Device,Username,Password,IP
+    global Device,Username,Password,IP,ipIndex
     Device = ((post_data.split('device='))[1].split('&')[0])
     Username = ((post_data.split('username='))[1].split('&')[0])
     Password = ((post_data.split('password='))[1].split('&')[0])
-    IP = ((post_data.split('ipAddress='))[1].split('&')[0])
-    return Device,Username,Password,IP
+    IP[ipIndex] = ((post_data.split('ipAddress='))[1].split('&')[0])
+    return Device,Username,Password,IP,ipIndex
 
 def getClientIP(self):
     global ipList, ipIndex, page
@@ -196,17 +196,9 @@ def getClientIP(self):
         ipList[ipIndex] = ClientIP # add the client IP to the list
         print('Client IP Address Added to the List')
         page[ipIndex] = 'landing'  # send the client to the landing page
+        setPage('landing')
     print("ipList: %s" % ipList)
     return ipList, ipIndex, page
-
-# def thread2(CurrentReply):
-#     ReadSSH()
-#     if reply != CurrentReply:
-#         filename = (os.getcwd()+'/includes/note.xml')
-#         root = xml.Element("note")
-#         userelement = xml.Element("terminalContent")
-#         uid = xml.SubElement(userelement, "uid")
-#         uid.text = reply
 
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
@@ -228,6 +220,7 @@ class MyServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
         #print('page = ' + page)
+        getClientIP(self)
         self.do_HEAD(pageContent[ipIndex])
         setPageContent(page[ipIndex])
         self.wfile.write(pageContent[ipIndex].encode("utf-8"))
@@ -238,18 +231,9 @@ class MyServer(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length).decode('utf-8')  # Get the data
         print(post_data)
         getClientIP(self)
-        # if 'IP=' in post_data:
-        #     ipPOST = post_data.split("=")[1]
-        #     print("ipPOST: %s" % ipPOST)
-        #     if ipPOST not in ipList:
-        #         ipIndex = ipList.index(None)
-        #         ipList[ipIndex] = ipPOST
-        #     else:
-        #         ipIndex = ipList.index(ipPOST)
-        # print("ipIndex: %s" % ipIndex)
         if 'device' in post_data:
             parseDevice(post_data)
-            InitSSH(IP,Username,Password)
+            InitSSH(IP[ipIndex],Username,Password)
             if connected[ipIndex] == True:
                 sleep(1)
                 ReadSSH()
@@ -257,21 +241,11 @@ class MyServer(BaseHTTPRequestHandler):
             #print("Reply: %s" % reply)
         else:
             post_data = post_data.split("=")[1]  # Only keep the value
-            #print(post_data) # Uncomment for debugging
         setPage(post_data) # Change page
-        # readCommands(post_data) # Read Commands from Forms
-        # if 'Connect' in post_data: # Code for original Landing Page
-        #     ip = post_data.split("&")[0]
-        #     InitSSH(ip,'robot','maker')
-        #     sleep(.75)
-        #     ReadSSH()
-        #     printTerminal(reply)
-        #     print("Reply: %s" % reply)
         if 'Close' in post_data:
             CloseSSH()
         elif 'SendCommand' in post_data:
             command = unquote(post_data.split("&")[-2].replace("+", " "))
-            #print("Command: %s" % command)
             WriteSSH(command+'\n')
             if 'python' in post_data: #opening a python session takes more time
                 sleep(3)
@@ -281,12 +255,11 @@ class MyServer(BaseHTTPRequestHandler):
                 sleep(.5)
             if connected[ipIndex] == True:
                 ReadSSH()
-                printTerminal(reply)
+                printTerminal(reply[ipIndex])
             if connected[ipIndex] == False:
                 clearTerminal()
             if command == 'clear':
                 clearTerminal()
-            #print("Reply: %s" % reply)
         elif 'Clear' in post_data:
             clearTerminal()
         elif 'Refresh' in post_data:
@@ -304,7 +277,7 @@ class MyServer(BaseHTTPRequestHandler):
                 else:
                     sleep(.15)
                 ReadSSH()
-                printTerminal(reply)
+                printTerminal(reply[ipIndex])
         elif 'Disconnect' in post_data:
             clearTerminal()
             CloseSSH()
@@ -314,7 +287,7 @@ class MyServer(BaseHTTPRequestHandler):
             sleep(3.75)
             if connected[ipIndex] == True:
                 ReadSSH()
-                printTerminal(reply)
+                printTerminal(reply[ipIndex])
             if connected[ipIndex] == False:
                 clearTerminal()
         self._redirect('/')  # Redirect back to the root url
@@ -329,8 +302,6 @@ if __name__ == '__main__':
 
     try:
         http_server.serve_forever()
-        # Thread(target = http_server.serve_forever()).start()
-        # Thread(target = thread2(reply)).start()
     except KeyboardInterrupt:
         http_server.server_close()
         print("\n-------------------EXIT-------------------")

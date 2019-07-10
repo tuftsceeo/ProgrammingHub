@@ -70,6 +70,8 @@ def setPage(post_data):
         page[ipIndex] = 'lesson'
     elif 'Return' in post_data:
         page[ipIndex] = 'landing'
+    elif 'ARdemo' in post_data:
+        page[ipIndex] = 'ARdemo'
     print("page: %s" % page)
     return page
 
@@ -86,6 +88,8 @@ def setPageContent(pagelocal):
             pageContent[ipIndex] = pageContent[ipIndex] + Form_html.format(rows,line,pyCode[line])
     elif pagelocal == 'lesson':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
+    elif pagelocal == 'ARdemo':
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%('0','')+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
     return pageContent
 
 def InitSSH(host,username,password):

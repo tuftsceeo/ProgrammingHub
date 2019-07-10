@@ -1,0 +1,74 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<aside style="float:left;width:240px;">
+	<form action="/" method="POST" >
+		<center>
+			<button type="submit" name='Fwd' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-up"></i></button>
+		</center><br>
+		<center>
+			<button type="submit" name='Left' value='True'style="font-size:48px"><i class="fa fa-arrow-circle-left"></i></button> 
+			&nbsp&nbsp
+			<button type="submit" name='Stop' value='True' style="font-size:48px"><i class="fa fa-stop-circle"></i></button> 
+			&nbsp&nbsp
+			<button type="submit" name='Right' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-right"></i></button>
+		</center><br>
+		<center>
+			<button type="submit" name='Bkwd' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-down"></i></button>
+		</center>
+	</form>
+	<form id="slide" action="/" method="POST">
+		<input type="range" name="submit" step="5" min="0" max="100" value="25" class="slider" id="Speed">
+		<input hidden id='submitSpeed' type='submit' name='speed' value='True' tabindex='-1'>
+	</form>
+	<form hidden id='speedForm' action="/" method="POST">
+		<input id='speedFormText' type='text' name='Speed' tabindex='-1'>
+	</form>
+	<center>
+		<h4 hidden id='SpeedSetting'>%s</h4>
+		<h4 id="SpeedText"></h4>
+		<h4>%s</h4>
+	</center>
+	<form id='ledForm' action="/" method="POST">
+	<center>
+		<button type="submit" name='Green' value='True' class="button button1">Green</button>
+		<button type="submit" name='Yellow' value='True' class="button button2">Yellow</button>
+		<button type="submit" name='Red' value='True' class="button button3">Red</button>
+	</center>
+	</form>
+</aside>
+<!-- Section for QR Code  -->
+<!-- <div class="contain">
+	<center>
+	<H4>Scan the QR Code using the View App to launch the AR Experience:</H4>
+	<img src="https://github.com/tuftsceeo/EV3AR/blob/master/Vuforia/EV3Cone_shareQR.png?raw=true" alt="QRCode" width="200" height="200">
+	</center>
+</div> -->
+<form id='reload'>
+	<input hidden type='submit' name='reload' value='True' tabindex='-1'>
+</form>
+<!-- <script>
+  function Reload() { // Reload Page
+      document.getElementById('reload').submit();
+      console.log("Refreshed");
+  }
+  setTimeout(Reload, 1000);
+</script> -->
+<script>
+	document.getElementById("Speed").addEventListener("change", submit);
+	function submit() {
+		document.getElementById('speedFormText').value = 
+		document.getElementById('Speed').value 
+    	document.getElementById('speedForm').submit();
+	} 
+	// var slide = document.getElementById('Speed'),
+	// slide.onchange = function() {
+	// 	document.getElementById('speedSlider').submit();
+	// }
+    document.getElementById("Speed").value =
+    document.getElementById("SpeedSetting").innerHTML;
+    document.getElementById("SpeedText").innerHTML = 
+    'Speed:'+document.getElementById("SpeedSetting").innerHTML+'/100';
+</script>

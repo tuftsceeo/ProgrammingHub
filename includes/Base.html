@@ -80,6 +80,7 @@ setInterval(refresh, 2000);
   <select id="pageSelect" name = "page" tabindex="-1">
     <option value="simplePage">Welcome Page</option>
     <option value="page2">EV3 Example Code</option>
+    <option value="ARdemo">AR Demo</option>
     <option value="lesson">Build A Robot</option>
   </select>
   <input id="submitpage" type="submit" hidden="hidden">
@@ -93,6 +94,8 @@ setInterval(refresh, 2000);
   } else if (x == 'page2') {
     index="1";
   } else if (x == 'lesson') {
+    index="3";
+  } else if (x == 'ARdemo') {
     index="2";
   }else {
     index="0";

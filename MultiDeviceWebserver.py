@@ -297,7 +297,6 @@ class MyServer(BaseHTTPRequestHandler):
 # Create Webserver
 if __name__ == '__main__':
     http_server = HTTPServer((ip_address, host_port), MyServer)
-    #http_server.listen(host_port, address='project_name.io')
     print("Server Starts - %s:%s" % (ip_address, host_port))
     webbrowser.open_new('http://%s:%s' %  (ip_address, host_port)) # Open in browser automatically
 

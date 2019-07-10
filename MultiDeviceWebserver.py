@@ -191,17 +191,14 @@ def parseDevice(post_data):
 def getClientIP(self):
     global ipList, ipIndex, page
     ClientIP = self.address_string() # Get the Client IP Address
-    print("ClientIP: %s" % ClientIP) 
     if ClientIP in ipList: # If the Client IP Address is already on the list
-        print('Client IP Address Already on the List')
         ipIndex = ipList.index(ClientIP) # Set the ipIndex to the index matching the Client IP
     else: # If the Client IP Address isn't already on the list
         ipIndex = ipList.index(None)
         ipList[ipIndex] = ClientIP # add the client IP to the list
-        print('Client IP Address Added to the List')
+        print('New Client IP Address Added')
         page[ipIndex] = 'landing'  # send the client to the landing page
         setPage('landing')
-    print("ipList: %s" % ipList)
     return ipList, ipIndex, page
 
 # Webserver

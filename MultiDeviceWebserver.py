@@ -14,6 +14,7 @@ DeviceLimit = 25
 ipList = [None]*DeviceLimit
 ipIndex = 0
 IP = [None]*DeviceLimit
+speed=20
 
 connected = [False]*DeviceLimit
 page = ['landing']*DeviceLimit
@@ -75,7 +76,7 @@ def setPage(post_data):
     return page
 
 def setPageContent(pagelocal):
-    global pageContent
+    global pageContent,speed
     if pagelocal == 'landing':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed[ipIndex])))
     elif pagelocal == 'simplePage':
@@ -88,13 +89,7 @@ def setPageContent(pagelocal):
     elif pagelocal == 'lesson':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
     elif pagelocal == 'ARdemo':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%('0','')+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
-    return pageContent
-
-def setARPageContent(distance,speed):
-    global pageContent
-    DistStr = 'Distance to Obstruction:'+str(distance)
-    pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%(str(speed),DistStr)+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%(str(speed),'')+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
     return pageContent
 
 def InitSSH(host,username,password):
@@ -137,6 +132,9 @@ def WriteSSH(string):
 
 def ReadSSH():
     global ssh, channel, reply, connected
+    print(channel[ipIndex].recv_ready())
+    if ssh[ipIndex] != None and channel[ipIndex] != None and channel[ipIndex].recv_ready() != True:
+        wait(.1)
     if ssh[ipIndex] != None and channel[ipIndex] != None and channel[ipIndex].recv_ready():
         reply[ipIndex] = channel[ipIndex].recv(9999).decode()
         # if 'Debian' in reply: #Take out ASCII ev3dev logo becuase it doesn't look right in the textbox
@@ -284,35 +282,31 @@ def red():
     return connected
 
 def runARdemo(post_data):
-    global ssh, channel, reply, connected
+    global ssh, channel, reply, connected, speed
     if ssh[ipIndex] != None and channel[ipIndex] != None:
-        try:
-            if 'Fwd' in post_data:
-                string="direc = 'Forward'\n"
-            elif 'Left' in post_data:
-                string="direc = 'Left'\n"
-            elif 'Right' in post_data:
-                string="direc = 'Right'\n"
-            elif 'Bkwd' in post_data:
-                string="direc = 'Backward'\n"
-            elif 'Stop' in post_data:
-                string="direc = 'Stop'\n"
-            elif 'Speed' in post_data:
-                string="setSpeed(post_data.split('=')[1])\n"
-            elif 'Green' in post_data:
-                string="green()\n"
-            elif 'Yellow' in post_data:
-                string="yellow()\n"
-            elif 'Red' in post_data:
-                string="red()\n"
-            string=string+"drive(direc,int(speed))\ndistance = getDist()\n"
-            size = channel[ipIndex].send(string.encode('utf-8'))
-            setARPageContent(distance,speed)
-        except:
-            connected[ipIndex] = False
-    return connected
-
-
+        speed='20'
+        if 'Fwd' in post_data:
+            string="direc = 'Forward'\n"
+        elif 'Left' in post_data:
+            string="direc = 'Left'\n"
+        elif 'Right' in post_data:
+            string="direc = 'Right'\n"
+        elif 'Bkwd' in post_data:
+            string="direc = 'Backward'\n"
+        elif 'Stop' in post_data:
+            string="direc = 'Stop'\n"
+        elif 'Speed' in post_data:
+            speed=post_data.split('=')[1]
+            string="setSpeed("+str(speed)+")\n"
+        elif 'Green' in post_data:
+            string="green()\n"
+        elif 'Yellow' in post_data:
+            string="yellow()\n"
+        elif 'Red' in post_data:
+            string="red()\n"
+        string=string+"drive(direc,int(speed))\ndistance = getDist()\n"
+        size = channel[ipIndex].send(string.encode('utf-8'))
+        return speed
 
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
@@ -347,12 +341,12 @@ class MyServer(BaseHTTPRequestHandler):
         getClientIP(self)
         if 'StartARDemo' in post_data:
             startARDemo()
-            sleep(5)
+            sleep(10)
             ReadSSH()
             printTerminal(reply[ipIndex])
-        if 'ARdemo_' in post_data:
+        if 'ARdemo_' in post_data or 'Speed' in post_data:
             runARdemo(post_data)
-            sleep(5)
+            sleep(.2)
             ReadSSH()
             printTerminal(reply[ipIndex])
         if 'device' in post_data:

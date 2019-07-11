@@ -14,7 +14,7 @@ DeviceLimit = 25
 ipList = [None]*DeviceLimit
 ipIndex = 0
 IP = [None]*DeviceLimit
-speed=20
+speed = [0]*DeviceLimit # For AR Demo
 
 connected = [False]*DeviceLimit
 page = ['landing']*DeviceLimit
@@ -57,6 +57,34 @@ s.connect(("8.8.8.8",80))
 ip_address = s.getsockname()[0]
 s.close()
 
+## Thingworx Section for AR Demo Page
+# Thingworx info
+with open('appkey.txt', 'r') as file:
+    appkey = file.read()
+url = "http://pp-1804271345f2.portal.ptc.io:8080/Thingworx/Things/CEEO_Summer_2019/Properties/"
+headers = {
+        'appKey': appkey,
+        'Accept': "application/json",
+        'Content-Type': "application/json"
+        }
+propName ="cone"
+
+# Post property value to thingworx
+def thingworxPOST(propName,value):
+    propValue = {propName: value}
+    requests.request("PUT",url+'*',headers=headers,json=propValue)
+
+# Get property value to thingworx and validate value was posted
+def thingworxGET(propName,value):
+    propValue = {propName: value}
+    getResponse=requests.request("GET",url+propName,headers=headers)
+    parsed_json = json.loads(getResponse.text)
+    dist = (parsed_json['rows'][0][propName])
+    if float(value) == dist:
+        print("Property Value Updated")
+    else:
+        print('Property Value Not Updated')
+
 # Set host port
 host_port = 8000
 
@@ -89,7 +117,7 @@ def setPageContent(pagelocal):
     elif pagelocal == 'lesson':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
     elif pagelocal == 'ARdemo':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%(str(speed),'')+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%(str(speed[ipIndex]),'')+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
     return pageContent
 
 def InitSSH(host,username,password):
@@ -274,6 +302,7 @@ def red():
     ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.RED)
 
 '''
+    speed[ipIndex] = 20
     if ssh[ipIndex] != None and channel[ipIndex] != None:
         try:
             size = channel[ipIndex].send(string.encode('utf-8'))
@@ -284,7 +313,7 @@ def red():
 def runARdemo(post_data):
     global ssh, channel, reply, connected, speed
     if ssh[ipIndex] != None and channel[ipIndex] != None:
-        speed='20'
+        speed[ipIndex]='20'
         if 'Fwd' in post_data:
             string="direc = 'Forward'\n"
         elif 'Left' in post_data:
@@ -296,8 +325,8 @@ def runARdemo(post_data):
         elif 'Stop' in post_data:
             string="direc = 'Stop'\n"
         elif 'Speed' in post_data:
-            speed=post_data.split('=')[1]
-            string="setSpeed("+str(speed)+")\n"
+            speed[ipIndex]=post_data.split('=')[1]
+            string="setSpeed("+str(speed[ipIndex])+")\n"
         elif 'Green' in post_data:
             string="green()\n"
         elif 'Yellow' in post_data:
@@ -306,6 +335,8 @@ def runARdemo(post_data):
             string="red()\n"
         string=string+"drive(direc,int(speed))\ndistance = getDist()\n"
         size = channel[ipIndex].send(string.encode('utf-8'))
+        #Need to get the distance from the EV3
+        #thingworxPOST('cone',distance)
         return speed
 
 # Webserver

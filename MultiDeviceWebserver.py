@@ -72,7 +72,6 @@ def setPage(post_data):
         page[ipIndex] = 'landing'
     elif 'ARdemo' in post_data:
         page[ipIndex] = 'ARdemo'
-    print("page: %s" % page)
     return page
 
 def setPageContent(pagelocal):
@@ -80,16 +79,22 @@ def setPageContent(pagelocal):
     if pagelocal == 'landing':
         pageContent[ipIndex] = (open(os.getcwd()+'/includes/LandingV2.html').read())+(open(os.getcwd()+'/includes/LandingV2connect.html').read()%(str(ConnectionFailed[ipIndex])))
     elif pagelocal == 'simplePage':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Simple.html').read())#+(open(os.getcwd()+'/includes/note.xml').read())
     elif pagelocal == 'page2':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read() 
         for line in pyCode:
             rows=pyCode[line].count('\n')+1
             pageContent[ipIndex] = pageContent[ipIndex] + Form_html.format(rows,line,pyCode[line])
     elif pagelocal == 'lesson':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/Lesson.html').read())
     elif pagelocal == 'ARdemo':
-        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex]),IP[ipIndex]))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%('0','')+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
+        pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%('0','')+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
+    return pageContent
+
+def setARPageContent(distance,speed):
+    global pageContent
+    DistStr = 'Distance to Obstruction:'+str(distance)
+    pageContent[ipIndex] = (open(os.getcwd()+'/includes/Base.html').read()%(terminal[ipIndex],page[ipIndex],str(connected[ipIndex])))+(open(os.getcwd()+'/includes/styleSheet.html')).read()+(open(os.getcwd()+'/includes/ARDemo.html').read())%(str(speed),DistStr)+(open(os.getcwd()+'/includes/ARstyleSheet.html').read())
     return pageContent
 
 def InitSSH(host,username,password):
@@ -201,6 +206,114 @@ def getClientIP(self):
         setPage('landing')
     return ipList, ipIndex, page
 
+def startARDemo():
+    global ssh, channel, reply, connected
+    string = '''python3
+import ev3dev.ev3 as ev3
+motor_left = ev3.LargeMotor('outB')
+motor_right = ev3.LargeMotor('outC')
+speed = 20 # Set Speed
+direc = 'Stop'
+
+# Motor commands
+def forward(speed):
+   motor_left.run_direct(duty_cycle_sp=speed)
+   motor_right.run_direct(duty_cycle_sp=speed)
+
+def left(speed):
+   motor_left.run_direct( duty_cycle_sp=-speed)
+   motor_right.run_direct( duty_cycle_sp=speed)
+
+def right(speed):
+   motor_left.run_direct( duty_cycle_sp=speed)
+   motor_right.run_direct( duty_cycle_sp=-speed)
+
+def back(speed):
+   motor_left.run_direct(duty_cycle_sp=-speed)
+   motor_right.run_direct(duty_cycle_sp=-speed)
+
+def stop(speed):
+   motor_left.run_direct( duty_cycle_sp=0)
+   motor_right.run_direct( duty_cycle_sp=-0)
+
+def setSpeed(NewSpeed):
+   global speed
+   speed = int(NewSpeed)
+   return speed
+
+def drive(direc,speed):
+    if direc == 'Forward':
+        forward(speed)
+    elif direc == 'Backward':
+        back(speed)
+    elif direc == 'Left':
+        left(speed)
+    elif direc == 'Right':
+        right(speed)
+    elif direc == 'Stop':
+        stop(speed)
+
+# Define settings for Ultrasonic Sensor
+us = ev3.UltrasonicSensor() # Connect ultrasonic sensor to any sensor port
+us.mode='US-DIST-CM' # Put the US sensor into distance mode.
+units = us.units # reports 'cm' even though the sensor measures 'mm'
+
+# Get distance from Ultrasonic Sensor
+def getDist():
+    return us.value()/10  # convert mm to cm
+
+# LED commands
+def green():
+    ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.GREEN)
+    ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.GREEN)
+
+def yellow():
+    ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.YELLOW)
+    ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.YELLOW)
+
+def red():
+    ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.RED)
+    ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.RED)
+
+'''
+    if ssh[ipIndex] != None and channel[ipIndex] != None:
+        try:
+            size = channel[ipIndex].send(string.encode('utf-8'))
+        except:
+            connected[ipIndex] = False
+    return connected
+
+def runARdemo(post_data):
+    global ssh, channel, reply, connected
+    if ssh[ipIndex] != None and channel[ipIndex] != None:
+        try:
+            if 'Fwd' in post_data:
+                string="direc = 'Forward'\n"
+            elif 'Left' in post_data:
+                string="direc = 'Left'\n"
+            elif 'Right' in post_data:
+                string="direc = 'Right'\n"
+            elif 'Bkwd' in post_data:
+                string="direc = 'Backward'\n"
+            elif 'Stop' in post_data:
+                string="direc = 'Stop'\n"
+            elif 'Speed' in post_data:
+                string="setSpeed(post_data.split('=')[1])\n"
+            elif 'Green' in post_data:
+                string="green()\n"
+            elif 'Yellow' in post_data:
+                string="yellow()\n"
+            elif 'Red' in post_data:
+                string="red()\n"
+            string=string+"drive(direc,int(speed))\ndistance = getDist()\n"
+            size = channel[ipIndex].send(string.encode('utf-8'))
+            setARPageContent(distance,speed)
+        except:
+            connected[ipIndex] = False
+    return connected
+
+
+
 # Webserver
 class MyServer(BaseHTTPRequestHandler):
 
@@ -232,6 +345,16 @@ class MyServer(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length).decode('utf-8')  # Get the data
         print(post_data)
         getClientIP(self)
+        if 'StartARDemo' in post_data:
+            startARDemo()
+            sleep(5)
+            ReadSSH()
+            printTerminal(reply[ipIndex])
+        if 'ARdemo_' in post_data:
+            runARdemo(post_data)
+            sleep(5)
+            ReadSSH()
+            printTerminal(reply[ipIndex])
         if 'device' in post_data:
             parseDevice(post_data)
             InitSSH(IP[ipIndex],Username,Password)
@@ -269,7 +392,6 @@ class MyServer(BaseHTTPRequestHandler):
         elif 'REPL' in post_data:
             command = unquote(post_data.split("&")[-2].replace("+", " "))
             lines=len(command.splitlines())
-            print("Lines: %s" % lines)
             for i in range(0, lines):
                 #print("Command: %s" % (command.splitlines()[i]))
                 WriteSSH(command.splitlines()[i]+'\n')

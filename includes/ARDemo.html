@@ -3,24 +3,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<aside style="float:left;width:240px;">
+<aside style="float:left;width:320px;">
 	<form action="/" method="POST" >
 		<center>
-			<button type="submit" name='Fwd' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-up"></i></button>
+		<button type="submit" name='StartARDemo' value='True' style="font-size:24px">Start AR Demo</button>
+		</center>
+	</form>
+	<form action="/" method="POST" >
+		<center>
+			<button type="submit" name='ARdemo_Fwd' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-up"></i></button>
 		</center><br>
 		<center>
-			<button type="submit" name='Left' value='True'style="font-size:48px"><i class="fa fa-arrow-circle-left"></i></button> 
+			<button type="submit" name='ARdemo_Left' value='True'style="font-size:48px"><i class="fa fa-arrow-circle-left"></i></button> 
 			&nbsp&nbsp
-			<button type="submit" name='Stop' value='True' style="font-size:48px"><i class="fa fa-stop-circle"></i></button> 
+			<button type="submit" name='ARdemo_Stop' value='True' style="font-size:48px"><i class="fa fa-stop-circle"></i></button> 
 			&nbsp&nbsp
-			<button type="submit" name='Right' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-right"></i></button>
+			<button type="submit" name='ARdemo_Right' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-right"></i></button>
 		</center><br>
 		<center>
-			<button type="submit" name='Bkwd' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-down"></i></button>
+			<button type="submit" name='ARdemo_Bkwd' value='True' style="font-size:48px"><i class="fa fa-arrow-circle-down"></i></button>
 		</center>
 	</form>
 	<form id="slide" action="/" method="POST">
-		<input type="range" name="submit" step="5" min="0" max="100" value="25" class="slider" id="Speed">
+		<input type="range" name="ARdemo_submit" step="5" min="0" max="100" value="25" class="slider" id="Speed">
 		<input hidden id='submitSpeed' type='submit' name='speed' value='True' tabindex='-1'>
 	</form>
 	<form hidden id='speedForm' action="/" method="POST">

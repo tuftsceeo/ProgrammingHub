@@ -7,29 +7,16 @@
 <aside style="float:right;width:525px;">
  <br><br><br>
  <textarea class="mono" rows="40" cols="72" id="TerminalWindow" name="TerminalWindow" spellcheck="false" style = "resize:none" tabindex="-1" placeholder="Terminal Window Will Activate When Device is Connected" readonly>%s</textarea><br>
- <form id="command" action="/EnterCommand" method="POST" onkeydown="submitIPformEnter(event); PressEnter(event,'command'); PressTab(event);">
+ <form id="command" action="/EnterCommand" method="POST" onkeydown="PressEnter(event,'command');PressTab(event);">
 <input type="text" class="mono" id="CommandText" name="SendCommand" value="" spellcheck="false" tabindex="-1" placeholder="Enter Command" size="59" autocomplete="off" autofocus="autofocus">
 <input type="submit" id="SendCommand" name="SendCommand" value="Send Command" tabindex="-1">
  </form>
-<form action="/" method="POST" onsubmit="submitIPform()">
+<form action="/" method="POST">
      <input type="submit" name="clear" value="Clear Terminal" tabindex="-1">
      <input type="submit" name="refresh" value="Refresh Terminal" tabindex="-1">
      <input type="submit" name="python3" value="Begin Python Session" tabindex="-1">
      <input type="submit" name="disconnect" value="Disconnect & Return to Landing" tabindex="-1">
  </form>
-<!--  <form id="refresh" method="POST">
-   <input type="text" name="Refresh" value="Refresh" hidden="hidden" tabindex="-1">
- </form>
- <script>
-function refresh() { // Refresh The Terminal Window every 2 seconds
-  var Text = document.getElementById('CommandText').value;
-  if (Text=='') {
-      document.getElementById("refresh").submit();
-  }
-  console.log("Refreshed");
-}
-setInterval(refresh, 2000);
- </script> -->
  <script> // Automatically scroll the textbox to the bottom
     var textarea = document.getElementById("TerminalWindow");
     textarea.scrollTop = textarea.scrollHeight;
@@ -38,7 +25,6 @@ setInterval(refresh, 2000);
 <h1>Programming Hub</h1>
 <h4 hidden id = "page">%s</h4>
 <h4 hidden id = "connected">%s</h4> 
-<h4 hidden id = "IP">%s</h4> 
 <form action="/" method="POST">
      <span id="dot"></span> <!-- Blink red  -->
      <span id="connectionStatus"></span>
@@ -58,24 +44,7 @@ setInterval(refresh, 2000);
     document.getElementById("return").style.display = "initial";
   }
 </script>
-<form hidden id = "IPform" action="/IP" method="POST">
-  <input type="text" id="IPtext" name="IP" value="" spellcheck="false" tabindex="-1" autocomplete="off">
-  <input id="submitIP" type="submit">
-</form>
-<script>
-  // var page = document.getElementById('page').innerHTML;
-  document.getElementById('IPtext').value = 
-  document.getElementById('IP').innerHTML;
-  function submitIPform() {
-  document.getElementById("IPform").submit();
-}
-  function submitIPformEnter(e) {
-    if ( (window.event ? event.keyCode : e.which) == 13) {
-      document.getElementById("IPform").submit();
-    }
-}
-</script>
-<form id = "pageForm" action="/Page" method="POST" onchange="submitIPform();submit('pageForm');">
+<form id = "pageForm" action="/Page" method="POST" onchange="submit('pageForm')">
   <span>Select a page: </span>
   <select id="pageSelect" name = "page" tabindex="-1">
     <option value="simplePage">Welcome Page</option>

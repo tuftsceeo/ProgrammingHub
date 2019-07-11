@@ -192,3 +192,6 @@ includes/images/EV3Icon.ai
 
 # Exclude Directory
 exclude/
+
+# Hide Appkey
+appkey.txt

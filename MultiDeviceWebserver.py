@@ -335,8 +335,8 @@ def runARdemo(post_data):
             string="red()\n"
         string=string+"drive(direc,int(speed))\ndistance = getDist()\n"
         size = channel[ipIndex].send(string.encode('utf-8'))
-        #Need to get the distance from the EV3
-        #thingworxPOST('cone',distance)
+        # Need to get the distance from the EV3
+        # thingworxPOST('cone',distance)
         return speed
 
 # Webserver
